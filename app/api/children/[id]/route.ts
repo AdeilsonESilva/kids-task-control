@@ -7,8 +7,10 @@ export const PUT = withApiContext(async ({ db }, request, { params }) => {
   const body = await request.json();
   const childService = new ChildService(db);
 
-  return await childService.updateChild(params.id, {
-    name: body.name
+  const { id } = await params;
+
+  return await childService.updateChild(id, {
+    name: body.name,
   });
 });
 

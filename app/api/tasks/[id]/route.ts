@@ -7,7 +7,9 @@ export const PUT = withApiContext(async ({ db }, request, { params }) => {
   const body = await request.json();
   const taskService = new TaskService(db);
 
-  return await taskService.updateTask(params.id, {
+  const { id } = await params;
+
+  return await taskService.updateTask(id, {
     title: body.title,
     description: body.description,
     value: body.value,
