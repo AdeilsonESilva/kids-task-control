@@ -1,0 +1,148 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
+
+interface Task {
+  id: string;
+  title: string;
+  description: string;
+  value: number;
+}
+
+interface TaskDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  task?: Task | null;
+  onSuccess?: () => void;
+}
+
+export function TaskDialog({
+  open,
+  onOpenChange,
+  task,
+  onSuccess,
+}: TaskDialogProps) {
+  const { toast } = useToast();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [value, setValue] = useState("");
+
+  useEffect(() => {
+    if (task) {
+      setTitle(task.title);
+      setDescription(task.description);
+      setValue(task.value.toString());
+    } else {
+      setTitle("");
+      setDescription("");
+      setValue("");
+    }
+  }, [task]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const taskData = {
+      title,
+      description,
+      value: parseFloat(value),
+    };
+
+    try {
+      const response = await fetch(
+        task ? `/api/tasks/${task.id}` : "/api/tasks",
+        {
+          method: task ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(taskData),
+        }
+      );
+
+      if (response.ok) {
+        toast({
+          title: task ? "Tarefa atualizada!" : "Tarefa criada!",
+          description: "A operação foi realizada com sucesso.",
+        });
+        onOpenChange(false);
+        onSuccess?.();
+      }
+    } catch (error) {
+      console.error("Error saving task:", error);
+      toast({
+        title: "Erro",
+        description: "Ocorreu um erro ao salvar a tarefa.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            {task ? "Editar Tarefa" : "Nova Tarefa"}
+          </DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Título</label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Digite o título da tarefa"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Descrição</label>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Digite a descrição da tarefa"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Valor (R$)</label>
+            <Input
+              type="number"
+              step="0.01"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder="0.00"
+              required
+            />
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancelar
+            </Button>
+            <Button type="submit">
+              {task ? "Atualizar" : "Criar"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
