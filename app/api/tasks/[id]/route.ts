@@ -1,46 +1,21 @@
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { withApiContext } from "@/lib/api-handler";
+import { TaskService } from "@/services/task-service";
 
-const prisma = new PrismaClient();
+export const PUT = withApiContext(async ({ db }, request, { params }) => {
+  if (!request) throw new Error("Request is required");
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const body = await request.json();
-    const task = await prisma.task.update({
-      where: { id: params.id },
-      data: {
-        title: body.title,
-        description: body.description,
-        value: body.value,
-      },
-    });
-    return NextResponse.json(task);
-  } catch (error) {
-    console.error("Error updating task:", error);
-    return NextResponse.json(
-      { error: "Error updating task" },
-      { status: 500 }
-    );
-  }
-}
+  const body = await request.json();
+  const taskService = new TaskService(db);
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    await prisma.task.delete({
-      where: { id: params.id },
-    });
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting task:", error);
-    return NextResponse.json(
-      { error: "Error deleting task" },
-      { status: 500 }
-    );
-  }
-}
+  return await taskService.updateTask(params.id, {
+    title: body.title,
+    description: body.description,
+    value: body.value,
+  });
+});
+
+export const DELETE = withApiContext(async ({ db }, _, { params }) => {
+  const taskService = new TaskService(db);
+  await taskService.deleteTask(params.id);
+  return { success: true };
+});

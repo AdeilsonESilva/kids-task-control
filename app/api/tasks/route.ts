@@ -1,37 +1,20 @@
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { withApiContext } from "@/lib/api-handler";
+import { TaskService } from "@/services/task-service";
 
-const prisma = new PrismaClient();
+export const GET = withApiContext(async ({ db }) => {
+  const taskService = new TaskService(db);
+  return await taskService.getAllTasks();
+});
 
-export async function GET() {
-  try {
-    const tasks = await prisma.task.findMany();
-    return NextResponse.json(tasks);
-  } catch (error) {
-    console.error("Error fetching tasks:", error);
-    return NextResponse.json(
-      { error: "Error fetching tasks" },
-      { status: 500 }
-    );
-  }
-}
+export const POST = withApiContext(async ({ db }, request) => {
+  if (!request) throw new Error("Request is required");
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const task = await prisma.task.create({
-      data: {
-        title: body.title,
-        description: body.description,
-        value: body.value,
-      },
-    });
-    return NextResponse.json(task);
-  } catch (error) {
-    console.error("Error creating task:", error);
-    return NextResponse.json(
-      { error: "Error creating task" },
-      { status: 500 }
-    );
-  }
-}
+  const body = await request.json();
+  const taskService = new TaskService(db);
+
+  return await taskService.createTask({
+    title: body.title,
+    description: body.description,
+    value: body.value,
+  });
+});

@@ -1,42 +1,19 @@
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { withApiContext } from "@/lib/api-handler";
+import { ChildService } from "@/services/child-service";
 
-const prisma = new PrismaClient();
+export const PUT = withApiContext(async ({ db }, request, { params }) => {
+  if (!request) throw new Error("Request is required");
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const body = await request.json();
-    const child = await prisma.child.update({
-      where: { id: params.id },
-      data: { name: body.name },
-    });
-    return NextResponse.json(child);
-  } catch (error) {
-    console.error("Error updating child:", error);
-    return NextResponse.json(
-      { error: "Error updating child" },
-      { status: 500 }
-    );
-  }
-}
+  const body = await request.json();
+  const childService = new ChildService(db);
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    await prisma.child.delete({
-      where: { id: params.id },
-    });
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting child:", error);
-    return NextResponse.json(
-      { error: "Error deleting child" },
-      { status: 500 }
-    );
-  }
-}
+  return await childService.updateChild(params.id, {
+    name: body.name
+  });
+});
+
+export const DELETE = withApiContext(async ({ db }, _, { params }) => {
+  const childService = new ChildService(db);
+  await childService.deleteChild(params.id);
+  return { success: true };
+});
