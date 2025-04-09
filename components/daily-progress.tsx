@@ -52,9 +52,10 @@ export function DailyProgress({
     }
   };
 
-  const progress = summary.totalTasks > 0
-    ? (summary.completedTasks / summary.totalTasks) * 100
-    : 0;
+  const progress =
+    summary.totalTasks > 0
+      ? (summary.completedTasks / summary.totalTasks) * 100
+      : 0;
 
   const formattedDate = selectedDate
     ? format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
@@ -72,7 +73,7 @@ export function DailyProgress({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Card className="p-4 bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900 dark:to-green-800">
+          <Card className="p-4 bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900 dark:to-green-800 h-24">
             <h3 className="text-sm font-medium text-green-800 dark:text-green-100">
               Valor Total do Dia
             </h3>
@@ -87,7 +88,7 @@ export function DailyProgress({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
         >
-          <Card className="p-4 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900 dark:to-blue-800">
+          <Card className="p-4 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900 dark:to-blue-800 h-24">
             <h3 className="text-sm font-medium text-blue-800 dark:text-blue-100">
               Tarefas Completadas
             </h3>
@@ -102,7 +103,7 @@ export function DailyProgress({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.2 }}
         >
-          <Card className="p-4 bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900 dark:to-purple-800">
+          <Card className="p-4 bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900 dark:to-purple-800 h-24">
             <h3 className="text-sm font-medium text-purple-800 dark:text-purple-100">
               Progresso
             </h3>

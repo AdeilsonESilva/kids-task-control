@@ -62,32 +62,32 @@ export function MonthlySummary({
           Resumo do Mês - {monthYear}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900 dark:to-purple-800 p-4 rounded-lg">
+          <Card className="p-4 bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900 dark:to-purple-800 h-24">
             <h3 className="text-sm font-medium text-purple-800 dark:text-purple-100">
               Total do Mês
             </h3>
             <p className="text-2xl font-bold text-purple-600 dark:text-purple-300">
               R$ {summary.totalValue.toFixed(2)}
             </p>
-          </div>
+          </Card>
 
-          <div className="bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900 dark:to-blue-800 p-4 rounded-lg">
+          <Card className="p-4 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900 dark:to-blue-800 h-24">
             <h3 className="text-sm font-medium text-blue-800 dark:text-blue-100">
               Tarefas Completadas
             </h3>
             <p className="text-2xl font-bold text-blue-600 dark:text-blue-300">
               {summary.completedTasks}
             </p>
-          </div>
+          </Card>
 
-          <div className="bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900 dark:to-green-800 p-4 rounded-lg">
+          <Card className="p-4 bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900 dark:to-green-800 h-24">
             <h3 className="text-sm font-medium text-green-800 dark:text-green-100">
               Média Diária
             </h3>
             <p className="text-2xl font-bold text-green-600 dark:text-green-300">
               R$ {summary.dailyAverageValue.toFixed(2)}
             </p>
-          </div>
+          </Card>
         </div>
       </Card>
     </motion.div>
