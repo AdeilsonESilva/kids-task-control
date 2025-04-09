@@ -6,12 +6,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Pencil, Trash2, Plus, X } from "lucide-react";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -188,7 +187,10 @@ export function ChildrenManagementDialog({
                       <Input
                         value={editingChild.name}
                         onChange={(e) =>
-                          setEditingChild({ ...editingChild, name: e.target.value })
+                          setEditingChild({
+                            ...editingChild,
+                            name: e.target.value,
+                          })
                         }
                         onKeyPress={(e) => {
                           if (e.key === "Enter") {

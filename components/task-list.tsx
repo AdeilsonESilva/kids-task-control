@@ -3,12 +3,9 @@
 import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
 import { Checkbox } from "./ui/checkbox";
-import { Button } from "./ui/button";
-import { Edit2, Trash2 } from "lucide-react";
-import { TaskDialog } from "./task-dialog";
 import { motion, AnimatePresence } from "framer-motion";
-import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
+import { TaskDialog } from "./task-dialog";
 
 interface Task {
   id: string;
@@ -58,13 +55,13 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
 
   const fetchCompletedTasks = async () => {
     if (!selectedChild || !selectedDate) return;
-    
+
     try {
       const response = await fetch(
         `/api/completed-tasks?childId=${selectedChild}&date=${selectedDate.toISOString()}`
       );
       const data = await response.json();
-      setCompletedTasks(data.map((ct: any) => ct.taskId));
+      setCompletedTasks(data.map((ct: { taskId: string }) => ct.taskId));
     } catch (error) {
       console.error("Error fetching completed tasks:", error);
       toast({
@@ -80,7 +77,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
       toast({
         title: "Atenção",
         description: "Selecione uma criança e uma data primeiro.",
-        variant: "warning",
+        variant: "default",
       });
       return;
     }
@@ -101,7 +98,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
       if (response.ok) {
         const data = await response.json();
         if (data.message === "Task uncompleted") {
-          setCompletedTasks(completedTasks.filter(id => id !== taskId));
+          setCompletedTasks(completedTasks.filter((id) => id !== taskId));
           toast({
             title: "Tarefa desmarcada",
             description: "A tarefa foi desmarcada com sucesso.",
@@ -119,34 +116,6 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
       toast({
         title: "Erro",
         description: "Não foi possível atualizar o status da tarefa.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleEditTask = (task: Task) => {
-    setEditingTask(task);
-    setIsTaskDialogOpen(true);
-  };
-
-  const handleDeleteTask = async (taskId: string) => {
-    try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        fetchTasks();
-        toast({
-          title: "Tarefa excluída",
-          description: "A tarefa foi excluída com sucesso.",
-        });
-      }
-    } catch (error) {
-      console.error("Error deleting task:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível excluir a tarefa.",
         variant: "destructive",
       });
     }
@@ -186,11 +155,15 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
               <div className="flex items-center gap-4">
                 <Checkbox
                   checked={completedTasks.includes(task.id)}
-                  disabled={!selectedChild || !selectedDate}
+                  // disabled={!selectedChild || !selectedDate}
                   onCheckedChange={() => handleTaskCompletion(task.id)}
                   className="transition-all duration-200"
                 />
-                <div className={`transition-all duration-200 ${completedTasks.includes(task.id) ? 'opacity-50' : ''}`}>
+                <div
+                  className={`transition-all duration-200 ${
+                    completedTasks.includes(task.id) ? "opacity-50" : ""
+                  }`}
+                >
                   <h3 className="font-medium">{task.title}</h3>
                   <p className="text-sm text-muted-foreground">
                     {task.description}
@@ -200,25 +173,6 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                   </p>
                 </div>
               </div>
-
-              {/*<div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleEditTask(task)}
-                  className="hover:bg-slate-100 dark:hover:bg-slate-800"
-                >
-                  <Edit2 className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => handleDeleteTask(task.id)}
-                  className="hover:bg-red-600"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>*/}
             </Card>
           </motion.div>
         ))}

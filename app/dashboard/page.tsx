@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { TaskList } from "@/components/task-list";
 import { ChildSelector } from "@/components/child-selector";
@@ -12,7 +12,9 @@ import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    new Date()
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -39,9 +41,8 @@ export default function Dashboard() {
                   onSelectChild={setSelectedChild}
                 />
               </Card>
-              
+
               <CalendarView
-                selectedChild={selectedChild}
                 selectedDate={selectedDate}
                 onDateSelect={setSelectedDate}
               />

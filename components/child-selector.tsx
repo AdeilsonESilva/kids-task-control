@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card } from "./ui/card";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { PlusCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface Child {
@@ -17,9 +14,11 @@ interface ChildSelectorProps {
   onSelectChild: (childId: string | null) => void;
 }
 
-export function ChildSelector({ selectedChild, onSelectChild }: ChildSelectorProps) {
+export function ChildSelector({
+  selectedChild,
+  onSelectChild,
+}: ChildSelectorProps) {
   const [children, setChildren] = useState<Child[]>([]);
-  const [newChildName, setNewChildName] = useState("");
 
   useEffect(() => {
     fetchChildren();
@@ -35,31 +34,10 @@ export function ChildSelector({ selectedChild, onSelectChild }: ChildSelectorPro
     }
   };
 
-  const handleAddChild = async () => {
-    if (!newChildName.trim()) return;
-
-    try {
-      const response = await fetch("/api/children", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: newChildName }),
-      });
-
-      if (response.ok) {
-        setNewChildName("");
-        fetchChildren();
-      }
-    } catch (error) {
-      console.error("Error adding child:", error);
-    }
-  };
-
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold mb-4">Crianças</h2>
-      
+
       <div className="space-y-2">
         {children.map((child) => (
           <motion.div
@@ -71,7 +49,9 @@ export function ChildSelector({ selectedChild, onSelectChild }: ChildSelectorPro
             <Button
               variant={selectedChild === child.id ? "default" : "outline"}
               className="w-full justify-start"
-              onClick={() => onSelectChild(child.id === selectedChild ? null : child.id)}
+              onClick={() =>
+                onSelectChild(child.id === selectedChild ? null : child.id)
+              }
             >
               {child.name}
             </Button>

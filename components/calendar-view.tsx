@@ -1,20 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
-import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { motion } from "framer-motion";
 
 interface CalendarViewProps {
-  selectedChild: string | null;
   onDateSelect: (date: Date | undefined) => void;
   selectedDate: Date | undefined;
 }
 
 export function CalendarView({
-  selectedChild,
   onDateSelect,
   selectedDate,
 }: CalendarViewProps) {

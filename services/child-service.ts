@@ -9,7 +9,10 @@ export class ChildService {
   constructor(private db: SupabaseClient<Database>) {}
 
   async getAllChildren() {
-    const { data, error } = await this.db.from("Child").select("*");
+    const { data, error } = await this.db
+      .from("Child")
+      .select("*")
+      .order("name");
 
     if (error) throw error;
 
@@ -42,10 +45,7 @@ export class ChildService {
   }
 
   async deleteChild(id: string) {
-    const { error } = await this.db
-      .from("Child")
-      .delete()
-      .eq("id", id);
+    const { error } = await this.db.from("Child").delete().eq("id", id);
 
     if (error) throw error;
   }
