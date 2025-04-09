@@ -1,16 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { ApiContext, getApiContext } from "./api-context";
 
 type ApiHandler<T = any> = (
   context: ApiContext,
-  request?: Request,
+  request: Request,
   params?: any
 ) => Promise<T>;
 
 export function withApiContext<T>(
   handler: ApiHandler<T>
-): (request?: Request, params?: any) => Promise<NextResponse> {
-  return async (request?: Request, params?: any) => {
+): (request: Request, params?: any) => Promise<NextResponse> {
+  return async (request: Request, params?: any) => {
     try {
       const context = getApiContext();
       const result = await handler(context, request, params);

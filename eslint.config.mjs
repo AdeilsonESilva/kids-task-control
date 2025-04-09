@@ -48,6 +48,10 @@ export default defineConfig([
       "react-hooks/exhaustive-deps": "warn",
       "react/jsx-uses-react": "off",
       "react/jsx-uses-vars": "error",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_" },
+      ],
     },
   },
   pluginReact.configs.flat.recommended,
