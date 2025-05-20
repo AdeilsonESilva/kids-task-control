@@ -14,6 +14,7 @@ interface MonthlySummaryProps {
 
 interface MonthlySummary {
   totalValue: number;
+  totalDiscounts: number;
   completedTasks: number;
   dailyAverageValue: number;
 }
@@ -25,6 +26,7 @@ export function MonthlySummary({
 }: MonthlySummaryProps) {
   const [summary, setSummary] = useState<MonthlySummary>({
     totalValue: 0,
+    totalDiscounts: 0,
     completedTasks: 0,
     dailyAverageValue: 0,
   });
@@ -63,13 +65,22 @@ export function MonthlySummary({
         <h2 className="text-xl font-semibold mb-4">
           Resumo do Mês - {monthYear}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="p-4 bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900 dark:to-purple-800 h-24">
             <h3 className="text-sm font-medium text-purple-800 dark:text-purple-100">
               Total do Mês
             </h3>
             <p className="text-2xl font-bold text-purple-600 dark:text-purple-300">
               R$ {summary.totalValue.toFixed(2)}
+            </p>
+          </Card>
+
+          <Card className="p-4 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900 dark:to-red-800 h-24">
+            <h3 className="text-sm font-medium text-red-800 dark:text-red-100">
+              Total Descontos
+            </h3>
+            <p className="text-2xl font-bold text-red-600 dark:text-red-300">
+              R$ {summary.totalDiscounts.toFixed(2)}
             </p>
           </Card>
 

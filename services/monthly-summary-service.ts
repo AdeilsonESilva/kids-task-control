@@ -16,7 +16,8 @@ export class MonthlySummaryService {
         `
         *,
         Task (
-          value
+          value,
+          isDiscount
         )
       `
       )
@@ -26,18 +27,26 @@ export class MonthlySummaryService {
 
     if (error) throw error;
 
-    // Corrigindo o acesso ao valor da tarefa
-    const totalValue = completedTasks.reduce(
-      (sum, ct) => sum + parseFloat(ct.Task.value),
-      0
-    );
+    // Calculando o total do mês (excluindo tarefas de desconto)
+    const totalValue = completedTasks.reduce((sum, ct) => {
+      const taskValue = parseFloat(ct.Task.value);
+      return ct.Task.isDiscount ? sum - taskValue : sum + taskValue;
+    }, 0);
+
+    // Calculando o total de descontos
+    const totalDiscounts = completedTasks.reduce((sum, ct) => {
+      const taskValue = parseFloat(ct.Task.value);
+      // Apenas soma valores negativos (descontos)
+      return ct.Task.isDiscount ? sum + taskValue : sum;
+    }, 0);
 
     const daysInMonth = monthEnd.getDate();
     const dailyAverageValue = totalValue / daysInMonth;
 
     return {
       totalValue,
-      completedTasks: completedTasks.length,
+      totalDiscounts,
+      completedTasks: completedTasks.filter((ct) => !ct.Task.isDiscount).length,
       dailyAverageValue,
     };
   }
