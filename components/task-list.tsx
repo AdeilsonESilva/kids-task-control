@@ -6,13 +6,7 @@ import { Checkbox } from "./ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import { TaskDialog } from "./task-dialog";
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  value: number;
-}
+import { Task } from "@/types/task";
 
 interface TaskListProps {
   selectedChild: string | null;
@@ -22,11 +16,11 @@ interface TaskListProps {
 export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
   const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [editingTask, setEditingTask] = useState<Task>();
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
 
-  // Resetar as tarefas completadas quando trocar de criança ou data
+  // Reiniciar as tarefas completadas quando trocar de criança ou data
   useEffect(() => {
     setCompletedTasks([]);
     if (selectedChild && selectedDate) {
@@ -141,49 +135,96 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
         </Card>
       )}
 
-      <AnimatePresence mode="popLayout">
-        {tasks.map((task) => (
-          <motion.div
-            key={task.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            layout
-          >
-            <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
-              <div className="flex items-center gap-4">
-                <Checkbox
-                  checked={completedTasks.includes(task.id)}
-                  // disabled={!selectedChild || !selectedDate}
-                  onCheckedChange={() => handleTaskCompletion(task.id)}
-                  className="transition-all duration-200"
-                />
-                <div
-                  className={`transition-all duration-200 ${
-                    completedTasks.includes(task.id) ? "opacity-50" : ""
-                  }`}
-                >
-                  <h3 className="font-medium">{task.title}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {task.description}
-                  </p>
-                  <p className="text-sm font-semibold text-green-600 dark:text-green-400">
-                    Valor: R$ {task.value.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+      {/* Tarefas que pagam */}
+      <div>
+        <h3 className="text-lg font-medium mb-2">Tarefas que pagam</h3>
+        <AnimatePresence mode="popLayout">
+          {tasks
+            .filter((task) => !task.isDiscount)
+            .map((task) => (
+              <motion.div
+                key={task.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                layout
+              >
+                <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
+                  <div className="flex items-center gap-4">
+                    <Checkbox
+                      checked={completedTasks.includes(task.id)}
+                      onCheckedChange={() => handleTaskCompletion(task.id)}
+                      className="transition-all duration-200"
+                    />
+                    <div
+                      className={`transition-all duration-200 ${
+                        completedTasks.includes(task.id) ? "opacity-50" : ""
+                      }`}
+                    >
+                      <h3 className="font-medium">{task.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {task.description}
+                      </p>
+                      <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+                        Valor: R$ {task.value.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+        </AnimatePresence>
+      </div>
+
+      {/* Tarefas que descontam */}
+      <div>
+        <h3 className="text-lg font-medium mb-2">Tarefas que descontam</h3>
+        <AnimatePresence mode="popLayout">
+          {tasks
+            .filter((task) => task.isDiscount)
+            .map((task) => (
+              <motion.div
+                key={task.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                layout
+              >
+                <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
+                  <div className="flex items-center gap-4">
+                    <Checkbox
+                      checked={completedTasks.includes(task.id)}
+                      onCheckedChange={() => handleTaskCompletion(task.id)}
+                      className="transition-all duration-200"
+                    />
+                    <div
+                      className={`transition-all duration-200 ${
+                        completedTasks.includes(task.id) ? "opacity-50" : ""
+                      }`}
+                    >
+                      <h3 className="font-medium">{task.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {task.description}
+                      </p>
+                      <p className="text-sm font-semibold text-red-600 dark:text-red-400">
+                        Valor: R$ {task.value.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+        </AnimatePresence>
+      </div>
 
       <TaskDialog
         open={isTaskDialogOpen}
         onOpenChange={setIsTaskDialogOpen}
         task={editingTask}
         onSuccess={() => {
-          setEditingTask(null);
+          setEditingTask(undefined);
           fetchTasks();
         }}
       />

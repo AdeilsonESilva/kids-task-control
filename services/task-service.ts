@@ -1,11 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/types/supabase";
-
-type TaskInput = {
-  title: string;
-  description?: string;
-  value: number;
-};
+import { TaskInput } from "@/types/task";
 
 export class TaskService {
   constructor(private db: SupabaseClient<Database>) {}
@@ -44,10 +39,7 @@ export class TaskService {
   }
 
   async deleteTask(id: string) {
-    const { error } = await this.db
-      .from("Task")
-      .delete()
-      .eq("id", id);
+    const { error } = await this.db.from("Task").delete().eq("id", id);
 
     if (error) throw error;
   }

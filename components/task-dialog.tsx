@@ -11,18 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  value: number;
-}
+import { Task } from "@/types/task";
 
 interface TaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  task?: Task | null;
+  task?: Task;
   onSuccess?: () => void;
 }
 
@@ -36,16 +30,19 @@ export function TaskDialog({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [value, setValue] = useState("");
+  const [isDiscount, setIsDiscount] = useState<boolean>();
 
   useEffect(() => {
     if (task) {
       setTitle(task.title);
       setDescription(task.description);
-      setValue(task.value.toString());
+      setValue(Math.abs(task.value).toString());
+      setIsDiscount(task.isDiscount);
     } else {
       setTitle("");
       setDescription("");
       setValue("");
+      setIsDiscount(false);
     }
   }, [task]);
 
@@ -55,7 +52,10 @@ export function TaskDialog({
     const taskData = {
       title,
       description,
-      value: parseFloat(value),
+      value: isDiscount
+        ? -Math.abs(parseFloat(value))
+        : Math.abs(parseFloat(value)),
+      isDiscount: isDiscount,
     };
 
     try {
@@ -92,9 +92,7 @@ export function TaskDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            {task ? "Editar Tarefa" : "Nova Tarefa"}
-          </DialogTitle>
+          <DialogTitle>{task ? "Editar Tarefa" : "Nova Tarefa"}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -122,11 +120,25 @@ export function TaskDialog({
             <Input
               type="number"
               step="0.01"
+              min="0"
               value={value}
               onChange={(e) => setValue(e.target.value)}
               placeholder="0.00"
               required
             />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="is-discount"
+              checked={isDiscount}
+              onChange={(e) => setIsDiscount(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <label htmlFor="is-discount" className="text-sm font-medium">
+              É um desconto (valor negativo)
+            </label>
           </div>
 
           <div className="flex justify-end gap-2">
@@ -137,9 +149,7 @@ export function TaskDialog({
             >
               Cancelar
             </Button>
-            <Button type="submit">
-              {task ? "Atualizar" : "Criar"}
-            </Button>
+            <Button type="submit">{task ? "Atualizar" : "Criar"}</Button>
           </div>
         </form>
       </DialogContent>

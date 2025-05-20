@@ -14,13 +14,7 @@ import { Pencil, Trash2, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  value: number;
-}
+import { Task } from "@/types/task";
 
 interface TaskManagementDialogProps {
   open: boolean;
@@ -37,6 +31,7 @@ export function TaskManagementDialog({
     title: "",
     description: "",
     value: "",
+    isDiscount: false,
   });
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
@@ -49,7 +44,7 @@ export function TaskManagementDialog({
   }, [open]);
 
   const resetForm = () => {
-    setNewTask({ title: "", description: "", value: "" });
+    setNewTask({ title: "", description: "", value: "", isDiscount: false });
     setEditingTask(null);
   };
 
@@ -80,7 +75,10 @@ export function TaskManagementDialog({
         body: JSON.stringify({
           title: newTask.title,
           description: newTask.description,
-          value: parseFloat(newTask.value),
+          value: newTask.isDiscount
+            ? -Math.abs(parseFloat(newTask.value))
+            : Math.abs(parseFloat(newTask.value)),
+          isDiscount: newTask.isDiscount,
         }),
       });
 
@@ -114,7 +112,10 @@ export function TaskManagementDialog({
         body: JSON.stringify({
           title: editingTask.title,
           description: editingTask.description,
-          value: editingTask.value,
+          value: editingTask.isDiscount
+            ? -Math.abs(editingTask.value)
+            : Math.abs(editingTask.value),
+          isDiscount: editingTask.isDiscount,
         }),
       });
 
@@ -184,12 +185,30 @@ export function TaskManagementDialog({
               <Input
                 type="number"
                 step="0.01"
+                min="0"
                 placeholder="Valor"
                 value={newTask.value}
                 onChange={(e) =>
                   setNewTask({ ...newTask, value: e.target.value })
                 }
               />
+            </div>
+            <div className="flex items-center space-x-2 mb-2">
+              <input
+                type="checkbox"
+                id="new-task-is-discount"
+                checked={newTask.isDiscount}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, isDiscount: e.target.checked })
+                }
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <label
+                htmlFor="new-task-is-discount"
+                className="text-sm font-medium"
+              >
+                É um desconto (valor negativo)
+              </label>
             </div>
             <div className="flex gap-2">
               <Textarea
@@ -207,93 +226,242 @@ export function TaskManagementDialog({
             </div>
           </div>
 
-          <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-            <AnimatePresence mode="popLayout">
-              {tasks.map((task) => (
-                <motion.div
-                  key={task.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.2 }}
-                  layout
-                >
-                  <Card className="p-4">
-                    {editingTask?.id === task.id ? (
-                      <div className="space-y-2">
-                        <Input
-                          value={editingTask.title}
-                          onChange={(e) =>
-                            setEditingTask({
-                              ...editingTask,
-                              title: e.target.value,
-                            })
-                          }
-                          className="mb-2"
-                        />
-                        <Textarea
-                          value={editingTask.description}
-                          onChange={(e) =>
-                            setEditingTask({
-                              ...editingTask,
-                              description: e.target.value,
-                            })
-                          }
-                          className="mb-2"
-                        />
-                        <div className="flex gap-2">
-                          <Input
-                            type="number"
-                            step="0.01"
-                            value={editingTask.value}
-                            onChange={(e) =>
-                              setEditingTask({
-                                ...editingTask,
-                                value: parseFloat(e.target.value),
-                              })
-                            }
-                          />
-                          <Button
-                            onClick={handleUpdateTask}
-                            className="bg-green-500 hover:bg-green-600"
-                          >
-                            Salvar
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium">{task.title}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {task.description}
-                          </p>
-                          <p className="text-sm font-semibold text-green-600">
-                            R$ {task.value.toFixed(2)}
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => setEditingTask(task)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => handleDeleteTask(task.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </Card>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
+            {/* Tarefas que pagam */}
+            <div className="mb-4">
+              <h3 className="text-lg font-medium mb-2">Tarefas que pagam</h3>
+              <AnimatePresence mode="popLayout">
+                {tasks
+                  .filter((task) => !task.isDiscount)
+                  .map((task) => (
+                    <motion.div
+                      key={task.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.2 }}
+                      layout
+                    >
+                      <Card className="p-4">
+                        {editingTask?.id === task.id ? (
+                          <div className="space-y-2">
+                            <Input
+                              value={editingTask.title}
+                              onChange={(e) =>
+                                setEditingTask({
+                                  ...editingTask,
+                                  title: e.target.value,
+                                })
+                              }
+                              className="mb-2"
+                            />
+                            <Textarea
+                              value={editingTask.description}
+                              onChange={(e) =>
+                                setEditingTask({
+                                  ...editingTask,
+                                  description: e.target.value,
+                                })
+                              }
+                              className="mb-2"
+                            />
+                            <div className="flex gap-2">
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={Math.abs(editingTask.value)}
+                                onChange={(e) =>
+                                  setEditingTask({
+                                    ...editingTask,
+                                    value: parseFloat(e.target.value),
+                                  })
+                                }
+                              />
+                              <Button
+                                onClick={handleUpdateTask}
+                                className="bg-green-500 hover:bg-green-600"
+                              >
+                                Salvar
+                              </Button>
+                            </div>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <input
+                                type="checkbox"
+                                id={`edit-task-is-discount-${task.id}`}
+                                checked={editingTask.isDiscount}
+                                onChange={(e) =>
+                                  setEditingTask({
+                                    ...editingTask,
+                                    isDiscount: e.target.checked,
+                                  })
+                                }
+                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                              />
+                              <label
+                                htmlFor={`edit-task-is-discount-${task.id}`}
+                                className="text-sm font-medium"
+                              >
+                                É um desconto (valor negativo)
+                              </label>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium">{task.title}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {task.description}
+                              </p>
+                              <p
+                                className={`text-sm font-semibold ${
+                                  task.isDiscount
+                                    ? "text-red-600 dark:text-red-400"
+                                    : "text-green-600 dark:text-green-400"
+                                }`}
+                              >
+                                R$ {task.value.toFixed(2)}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => setEditingTask(task)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                onClick={() => handleDeleteTask(task.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </Card>
+                    </motion.div>
+                  ))}
+              </AnimatePresence>
+            </div>
+
+            {/* Tarefas que descontam */}
+            <div>
+              <h3 className="text-lg font-medium mb-2">
+                Tarefas que descontam
+              </h3>
+              <AnimatePresence mode="popLayout">
+                {tasks
+                  .filter((task) => task.isDiscount)
+                  .map((task) => (
+                    <motion.div
+                      key={task.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.2 }}
+                      layout
+                    >
+                      <Card className="p-4 mb-2">
+                        {editingTask?.id === task.id ? (
+                          <div className="space-y-2">
+                            <Input
+                              value={editingTask.title}
+                              onChange={(e) =>
+                                setEditingTask({
+                                  ...editingTask,
+                                  title: e.target.value,
+                                })
+                              }
+                              className="mb-2"
+                            />
+                            <Textarea
+                              value={editingTask.description}
+                              onChange={(e) =>
+                                setEditingTask({
+                                  ...editingTask,
+                                  description: e.target.value,
+                                })
+                              }
+                              className="mb-2"
+                            />
+                            <div className="flex gap-2">
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                value={Math.abs(editingTask.value)}
+                                onChange={(e) =>
+                                  setEditingTask({
+                                    ...editingTask,
+                                    value: parseFloat(e.target.value),
+                                  })
+                                }
+                              />
+                              <Button
+                                onClick={handleUpdateTask}
+                                className="bg-green-500 hover:bg-green-600"
+                              >
+                                Salvar
+                              </Button>
+                            </div>
+                            <div className="flex items-center space-x-2 mt-2">
+                              <input
+                                type="checkbox"
+                                id={`edit-task-is-discount-${task.id}`}
+                                checked={editingTask.isDiscount}
+                                onChange={(e) =>
+                                  setEditingTask({
+                                    ...editingTask,
+                                    isDiscount: e.target.checked,
+                                  })
+                                }
+                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                              />
+                              <label
+                                htmlFor={`edit-task-is-discount-${task.id}`}
+                                className="text-sm font-medium"
+                              >
+                                É um desconto (valor negativo)
+                              </label>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium">{task.title}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {task.description}
+                              </p>
+                              <p className="text-sm font-semibold text-red-600 dark:text-red-400">
+                                R$ {task.value.toFixed(2)}
+                              </p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => setEditingTask(task)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                onClick={() => handleDeleteTask(task.id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </Card>
+                    </motion.div>
+                  ))}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </DialogContent>

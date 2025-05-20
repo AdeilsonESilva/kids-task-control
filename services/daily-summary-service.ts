@@ -33,10 +33,11 @@ export class DailySummaryService {
     if (countError) throw countError;
 
     // Calcula o valor total das tarefas completadas
-    const totalValue = completedTasks.reduce(
-      (sum, ct) => sum + parseFloat(ct.task.value),
-      0
-    );
+    // Tarefas com isDiscount=true devem subtrair do valor total
+    const totalValue = completedTasks.reduce((sum, ct) => {
+      const taskValue = parseFloat(ct.task.value);
+      return ct.task.isDiscount ? sum - taskValue : sum + taskValue;
+    }, 0);
 
     return {
       totalValue,
