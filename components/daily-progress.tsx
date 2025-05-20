@@ -92,7 +92,7 @@ export function DailyProgress({
         >
           <Card className="p-4 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900 dark:to-blue-800 h-24">
             <h3 className="text-sm font-medium text-blue-800 dark:text-blue-100">
-              Tarefas Completadas
+              Tarefas Pagas Completadas
             </h3>
             <p className="text-2xl font-bold text-blue-600 dark:text-blue-300">
               {summary.completedTasks} / {summary.totalTasks}
@@ -107,7 +107,7 @@ export function DailyProgress({
         >
           <Card className="p-4 bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900 dark:to-purple-800 h-24">
             <h3 className="text-sm font-medium text-purple-800 dark:text-purple-100">
-              Progresso
+              Progresso de Tarefas Pagas
             </h3>
             <Progress value={progress} className="mt-2" />
             <p className="text-sm font-medium text-purple-600 dark:text-purple-300 mt-1">
