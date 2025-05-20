@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 interface MonthlySummaryProps {
   selectedChild: string | null;
   selectedDate: Date | undefined;
+  updateTrigger?: number; // Adicionar propriedade para forçar atualização
 }
 
 interface MonthlySummary {
@@ -20,6 +21,7 @@ interface MonthlySummary {
 export function MonthlySummary({
   selectedChild,
   selectedDate,
+  updateTrigger = 0,
 }: MonthlySummaryProps) {
   const [summary, setSummary] = useState<MonthlySummary>({
     totalValue: 0,
@@ -31,7 +33,7 @@ export function MonthlySummary({
     if (selectedChild && selectedDate) {
       fetchMonthlySummary();
     }
-  }, [selectedChild, selectedDate]);
+  }, [selectedChild, selectedDate, updateTrigger]);
 
   const fetchMonthlySummary = async () => {
     try {

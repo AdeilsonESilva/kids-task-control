@@ -11,9 +11,15 @@ import { Task } from "@/types/task";
 interface TaskListProps {
   selectedChild: string | null;
   selectedDate: Date | undefined;
+  updateTrigger?: number;
+  onUpdateTrigger?: () => void;
 }
 
-export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
+export function TaskList({
+  selectedChild,
+  selectedDate,
+  onUpdateTrigger,
+}: TaskListProps) {
   const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task>();
@@ -103,6 +109,11 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
             title: "Tarefa completada",
             description: "A tarefa foi marcada como concluída.",
           });
+        }
+
+        // Incrementar o trigger para forçar a atualização dos resumos
+        if (onUpdateTrigger) {
+          onUpdateTrigger();
         }
       }
     } catch (error) {

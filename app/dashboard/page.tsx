@@ -15,6 +15,7 @@ export default function Dashboard() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
   );
+  const [updateTrigger, setUpdateTrigger] = useState(0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -52,12 +53,14 @@ export default function Dashboard() {
               <MonthlySummary
                 selectedChild={selectedChild}
                 selectedDate={selectedDate}
+                updateTrigger={updateTrigger}
               />
 
               <Card className="p-4 shadow-lg hover:shadow-xl transition-shadow">
                 <DailyProgress
                   selectedChild={selectedChild}
                   selectedDate={selectedDate}
+                  updateTrigger={updateTrigger}
                 />
               </Card>
 
@@ -65,6 +68,8 @@ export default function Dashboard() {
                 <TaskList
                   selectedChild={selectedChild}
                   selectedDate={selectedDate}
+                  updateTrigger={updateTrigger}
+                  onUpdateTrigger={() => setUpdateTrigger((prev) => prev + 1)}
                 />
               </Card>
             </div>

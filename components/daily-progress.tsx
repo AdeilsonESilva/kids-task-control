@@ -10,6 +10,7 @@ import { ptBR } from "date-fns/locale";
 interface DailyProgressProps {
   selectedChild: string | null;
   selectedDate: Date | undefined;
+  updateTrigger?: number; // Adicionar propriedade para forçar atualização
 }
 
 interface DailySummary {
@@ -21,6 +22,7 @@ interface DailySummary {
 export function DailyProgress({
   selectedChild,
   selectedDate,
+  updateTrigger = 0,
 }: DailyProgressProps) {
   const [summary, setSummary] = useState<DailySummary>({
     totalValue: 0,
@@ -38,7 +40,7 @@ export function DailyProgress({
         totalTasks: 0,
       });
     }
-  }, [selectedChild, selectedDate]);
+  }, [selectedChild, selectedDate, updateTrigger]);
 
   const fetchDailySummary = async () => {
     try {
