@@ -29,7 +29,8 @@ export class DailySummaryService {
     const { count: totalTasks, error: countError } = await this.db
       .from("Task")
       .select("*", { count: "exact", head: true })
-      .eq("isDiscount", false);
+      .eq("isDiscount", false)
+      .eq("isBonus", false);
 
     if (countError) throw countError;
 
@@ -42,7 +43,8 @@ export class DailySummaryService {
 
     // Filtra apenas tarefas que pagam (valor positivo e não são descontos)
     const payingCompletedTasks = completedTasks.filter(
-      (ct) => !ct.task.isDiscount && parseFloat(ct.task.value) > 0
+      (ct) =>
+        !ct.task.isDiscount && !ct.task.isBonus && parseFloat(ct.task.value) > 0
     );
 
     return {

@@ -4,6 +4,7 @@ export interface Task {
   description: string;
   value: number;
   isDiscount: boolean;
+  isBonus: boolean;
 }
 
 export type TaskInput = Omit<Task, "id">;

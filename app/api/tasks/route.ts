@@ -17,5 +17,6 @@ export const POST = withApiContext(async ({ db }, request: Request) => {
     description: body.description,
     value: body.value,
     isDiscount: body.isDiscount,
+    isBonus: body.isBonus,
   });
 });

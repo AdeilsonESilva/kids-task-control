@@ -37,6 +37,7 @@ export interface Database {
           description: string | null;
           value: number;
           isDiscount: boolean;
+          isBonus: boolean;
           createdAt: string;
           updatedAt: string;
         };
@@ -46,6 +47,7 @@ export interface Database {
           description?: string | null;
           value: number;
           isDiscount: boolean;
+          isBonus: boolean;
           createdAt?: string;
           updatedAt?: string;
         };
@@ -55,6 +57,7 @@ export interface Database {
           description?: string | null;
           value?: number;
           isDiscount?: boolean;
+          isBonus?: boolean;
           createdAt?: string;
           updatedAt?: string;
         };

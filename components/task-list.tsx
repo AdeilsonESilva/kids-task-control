@@ -22,6 +22,8 @@ export function TaskList({
 }: TaskListProps) {
   const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasksDiscount, setTasksDiscount] = useState<Task[]>([]);
+  const [tasksBonus, setTasksBonus] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task>();
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
@@ -41,8 +43,10 @@ export function TaskList({
   const fetchTasks = async () => {
     try {
       const response = await fetch("/api/tasks");
-      const data = await response.json();
-      setTasks(data);
+      const data: Task[] = await response.json();
+      setTasks(data.filter((task) => !task.isDiscount && !task.isBonus));
+      setTasksDiscount(data.filter((task) => task.isDiscount));
+      setTasksBonus(data.filter((task) => task.isBonus));
     } catch (error) {
       console.error("Error fetching tasks:", error);
       toast({
@@ -146,13 +150,12 @@ export function TaskList({
         </Card>
       )}
 
-      {/* Tarefas que pagam */}
-      <div>
-        <h3 className="text-lg font-medium mb-2">Tarefas que pagam</h3>
-        <AnimatePresence mode="popLayout">
-          {tasks
-            .filter((task) => !task.isDiscount)
-            .map((task) => (
+      {/* Tarefas */}
+      {tasks.length > 0 && (
+        <div>
+          <h3 className="text-lg font-medium mb-2">Tarefas</h3>
+          <AnimatePresence mode="popLayout">
+            {tasks.map((task) => (
               <motion.div
                 key={task.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -185,16 +188,16 @@ export function TaskList({
                 </Card>
               </motion.div>
             ))}
-        </AnimatePresence>
-      </div>
+          </AnimatePresence>
+        </div>
+      )}
 
-      {/* Tarefas que descontam */}
-      <div>
-        <h3 className="text-lg font-medium mb-2">Tarefas que descontam</h3>
-        <AnimatePresence mode="popLayout">
-          {tasks
-            .filter((task) => task.isDiscount)
-            .map((task) => (
+      {/* Descontos */}
+      {tasksDiscount.length > 0 && (
+        <div>
+          <h3 className="text-lg font-medium mb-2">Descontos</h3>
+          <AnimatePresence mode="popLayout">
+            {tasksDiscount.map((task) => (
               <motion.div
                 key={task.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -227,8 +230,51 @@ export function TaskList({
                 </Card>
               </motion.div>
             ))}
-        </AnimatePresence>
-      </div>
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* Bonus */}
+      {tasksBonus.length > 0 && (
+        <div>
+          <h3 className="text-lg font-medium mb-2">Bônus</h3>
+          <AnimatePresence mode="popLayout">
+            {tasksBonus.map((task) => (
+              <motion.div
+                key={task.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                layout
+              >
+                <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
+                  <div className="flex items-center gap-4">
+                    <Checkbox
+                      checked={completedTasks.includes(task.id)}
+                      onCheckedChange={() => handleTaskCompletion(task.id)}
+                      className="transition-all duration-200"
+                    />
+                    <div
+                      className={`transition-all duration-200 ${
+                        completedTasks.includes(task.id) ? "opacity-50" : ""
+                      }`}
+                    >
+                      <h3 className="font-medium">{task.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {task.description}
+                      </p>
+                      <p className="text-sm font-semibold text-yellow-600 dark:text-yellow-400">
+                        Valor: R$ {task.value.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+      )}
 
       <TaskDialog
         open={isTaskDialogOpen}

@@ -109,7 +109,11 @@ export function DailyProgress({
             <h3 className="text-sm font-medium text-purple-800 dark:text-purple-100">
               Progresso de Tarefas Pagas
             </h3>
-            <Progress value={progress} className="mt-2" />
+            <Progress
+              value={progress}
+              className="mt-2 bg-purple-100 dark:bg-purple-900"
+              indicatorClassName="bg-purple-600 dark:bg-purple-400"
+            />
             <p className="text-sm font-medium text-purple-600 dark:text-purple-300 mt-1">
               {progress.toFixed(0)}%
             </p>
