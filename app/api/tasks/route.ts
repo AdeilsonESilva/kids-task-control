@@ -7,7 +7,7 @@ export const GET = withApiContext(async ({ db }) => {
 });
 
 export const POST = withApiContext(async ({ db }, request: Request) => {
-  // if (!request) throw new Error("Request is required");
+  if (!request) throw new Error("Request is required");
 
   const body = await request.json();
   const taskService = new TaskService(db);
