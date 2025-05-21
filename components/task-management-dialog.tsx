@@ -86,9 +86,7 @@ export function TaskManagementDialog({
         body: JSON.stringify({
           title: newTask.title,
           description: newTask.description,
-          value: newTask.isDiscount
-            ? -Math.abs(parseFloat(newTask.value))
-            : Math.abs(parseFloat(newTask.value)),
+          value: Math.abs(parseFloat(newTask.value)),
           isDiscount: newTask.isDiscount,
           isBonus: newTask.isBonus,
         }),
@@ -124,9 +122,7 @@ export function TaskManagementDialog({
         body: JSON.stringify({
           title: editingTask.title,
           description: editingTask.description,
-          value: editingTask.isDiscount
-            ? -Math.abs(editingTask.value)
-            : Math.abs(editingTask.value),
+          value: Math.abs(editingTask.value),
           isDiscount: editingTask.isDiscount,
           isBonus: editingTask.isBonus,
         }),
@@ -210,11 +206,17 @@ export function TaskManagementDialog({
             <div className="flex gap-2 mb-2 sm:gap-24">
               <div className="flex items-center space-x-2">
                 <input
-                  type="checkbox"
+                  type="radio"
                   id="new-task-is-discount"
+                  name="task-type"
                   checked={newTask.isDiscount}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, isDiscount: e.target.checked })
+                  onChange={() => {}}
+                  onClick={() =>
+                    setNewTask({
+                      ...newTask,
+                      isDiscount: !newTask.isDiscount,
+                      isBonus: false,
+                    })
                   }
                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                 />
@@ -227,11 +229,17 @@ export function TaskManagementDialog({
               </div>
               <div className="flex items-center space-x-2">
                 <input
-                  type="checkbox"
+                  type="radio"
                   id="new-task-is-bonus"
+                  name="task-type"
                   checked={newTask.isBonus}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, isBonus: e.target.checked })
+                  onChange={() => {}}
+                  onClick={() =>
+                    setNewTask({
+                      ...newTask,
+                      isBonus: !newTask.isBonus,
+                      isDiscount: false,
+                    })
                   }
                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                 />
@@ -320,13 +328,16 @@ export function TaskManagementDialog({
                             <div className="flex gap-2 mb-2 sm:gap-24">
                               <div className="flex items-center space-x-2">
                                 <input
-                                  type="checkbox"
+                                  type="radio"
                                   id={`edit-task-is-discount-${task.id}`}
+                                  name={`edit-task-type-${task.id}`}
                                   checked={editingTask.isDiscount}
-                                  onChange={(e) =>
+                                  onChange={() => {}}
+                                  onClick={() =>
                                     setEditingTask({
                                       ...editingTask,
-                                      isDiscount: e.target.checked,
+                                      isDiscount: !editingTask.isDiscount,
+                                      isBonus: false,
                                     })
                                   }
                                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
@@ -340,13 +351,16 @@ export function TaskManagementDialog({
                               </div>
                               <div className="flex items-center space-x-2">
                                 <input
-                                  type="checkbox"
+                                  type="radio"
                                   id={`edit-task-is-bonus-${task.id}`}
+                                  name={`edit-task-type-${task.id}`}
                                   checked={editingTask.isBonus}
-                                  onChange={(e) =>
+                                  onChange={() => {}}
+                                  onClick={() =>
                                     setEditingTask({
                                       ...editingTask,
-                                      isBonus: e.target.checked,
+                                      isBonus: !editingTask.isBonus,
+                                      isDiscount: false,
                                     })
                                   }
                                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
@@ -404,7 +418,7 @@ export function TaskManagementDialog({
 
             {/* Descontos */}
             {tasksDiscount.length > 0 && (
-              <div>
+              <div className="mb-4">
                 <h3 className="text-lg font-medium mb-2">Descontos</h3>
                 <AnimatePresence mode="popLayout">
                   {tasksDiscount.map((task) => (
@@ -416,7 +430,7 @@ export function TaskManagementDialog({
                       transition={{ duration: 0.2 }}
                       layout
                     >
-                      <Card className="p-4 mb-2">
+                      <Card className="p-4">
                         {editingTask?.id === task.id ? (
                           <div className="space-y-2">
                             <Input
@@ -462,13 +476,16 @@ export function TaskManagementDialog({
                             <div className="flex gap-2 mb-2 sm:gap-24">
                               <div className="flex items-center space-x-2">
                                 <input
-                                  type="checkbox"
+                                  type="radio"
                                   id={`edit-task-is-discount-${task.id}`}
+                                  name={`edit-task-type-${task.id}`}
                                   checked={editingTask.isDiscount}
-                                  onChange={(e) =>
+                                  onChange={() => {}}
+                                  onClick={() =>
                                     setEditingTask({
                                       ...editingTask,
-                                      isDiscount: e.target.checked,
+                                      isDiscount: !editingTask.isDiscount,
+                                      isBonus: false,
                                     })
                                   }
                                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
@@ -482,13 +499,16 @@ export function TaskManagementDialog({
                               </div>
                               <div className="flex items-center space-x-2">
                                 <input
-                                  type="checkbox"
+                                  type="radio"
                                   id={`edit-task-is-bonus-${task.id}`}
+                                  name={`edit-task-type-${task.id}`}
                                   checked={editingTask.isBonus}
-                                  onChange={(e) =>
+                                  onChange={() => {}}
+                                  onClick={() =>
                                     setEditingTask({
                                       ...editingTask,
-                                      isBonus: e.target.checked,
+                                      isBonus: !editingTask.isBonus,
+                                      isDiscount: false,
                                     })
                                   }
                                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
@@ -538,7 +558,7 @@ export function TaskManagementDialog({
               </div>
             )}
 
-            {/* Bonus */}
+            {/* Bônus */}
             {tasksBonus.length > 0 && (
               <div>
                 <h3 className="text-lg font-medium mb-2">Bônus</h3>
@@ -552,7 +572,7 @@ export function TaskManagementDialog({
                       transition={{ duration: 0.2 }}
                       layout
                     >
-                      <Card className="p-4 mb-2">
+                      <Card className="p-4">
                         {editingTask?.id === task.id ? (
                           <div className="space-y-2">
                             <Input
@@ -598,13 +618,16 @@ export function TaskManagementDialog({
                             <div className="flex gap-2 mb-2 sm:gap-24">
                               <div className="flex items-center space-x-2">
                                 <input
-                                  type="checkbox"
+                                  type="radio"
                                   id={`edit-task-is-discount-${task.id}`}
+                                  name={`edit-task-type-${task.id}`}
                                   checked={editingTask.isDiscount}
-                                  onChange={(e) =>
+                                  onChange={() => {}}
+                                  onClick={() =>
                                     setEditingTask({
                                       ...editingTask,
-                                      isDiscount: e.target.checked,
+                                      isDiscount: !editingTask.isDiscount,
+                                      isBonus: false,
                                     })
                                   }
                                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
@@ -618,13 +641,16 @@ export function TaskManagementDialog({
                               </div>
                               <div className="flex items-center space-x-2">
                                 <input
-                                  type="checkbox"
+                                  type="radio"
                                   id={`edit-task-is-bonus-${task.id}`}
+                                  name={`edit-task-type-${task.id}`}
                                   checked={editingTask.isBonus}
-                                  onChange={(e) =>
+                                  onChange={() => {}}
+                                  onClick={() =>
                                     setEditingTask({
                                       ...editingTask,
-                                      isBonus: e.target.checked,
+                                      isBonus: !editingTask.isBonus,
+                                      isDiscount: false,
                                     })
                                   }
                                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"

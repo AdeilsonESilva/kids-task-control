@@ -13,11 +13,14 @@ export const PUT = withApiContext(async ({ db }, request, { params }) => {
     title: body.title,
     description: body.description,
     value: body.value,
+    isBonus: body.isBonus,
+    isDiscount: body.isDiscount,
   });
 });
 
 export const DELETE = withApiContext(async ({ db }, _, { params }) => {
   const taskService = new TaskService(db);
-  await taskService.deleteTask(params.id);
+  const { id } = await params;
+  await taskService.deleteTask(id);
   return { success: true };
 });
