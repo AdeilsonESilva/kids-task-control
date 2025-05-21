@@ -29,25 +29,31 @@ export function MainNav() {
   return (
     <div className="flex items-center gap-4">
       <ThemeToggle />
-      
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon">
-            <Settings className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => handleChildrenDialogChange(true)}>
-            <Users className="mr-2 h-4 w-4" />
-            Gerenciar Crianças
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => handleTaskDialogChange(true)}>
-            <ListTodo className="mr-2 h-4 w-4" />
-            Gerenciar Tarefas
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+
+      {!isChildrenDialogOpen && !isTaskDialogOpen ? (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleChildrenDialogChange(true)}>
+              <Users className="mr-2 h-4 w-4" />
+              Gerenciar Crianças
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleTaskDialogChange(true)}>
+              <ListTodo className="mr-2 h-4 w-4" />
+              Gerenciar Tarefas
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <Button variant="outline" size="icon">
+          <Settings className="h-4 w-4" />
+        </Button>
+      )}
 
       <ChildrenManagementDialog
         open={isChildrenDialogOpen}
