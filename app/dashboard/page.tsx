@@ -56,13 +56,11 @@ export default function Dashboard() {
                 updateTrigger={updateTrigger}
               />
 
-              <Card className="p-4 shadow-lg hover:shadow-xl transition-shadow">
-                <DailyProgress
-                  selectedChild={selectedChild}
-                  selectedDate={selectedDate}
-                  updateTrigger={updateTrigger}
-                />
-              </Card>
+              <DailyProgress
+                selectedChild={selectedChild}
+                selectedDate={selectedDate}
+                updateTrigger={updateTrigger}
+              />
 
               <Card className="p-4 shadow-lg hover:shadow-xl transition-shadow">
                 <TaskList
