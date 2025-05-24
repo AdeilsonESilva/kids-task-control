@@ -3,7 +3,7 @@ import { Database } from "@/types/supabase";
 import { startOfDay, endOfDay } from "date-fns";
 
 export class DailySummaryService {
-  constructor(private db: SupabaseClient<Database>) {}
+  constructor(private db: SupabaseClient<Database>) { }
 
   async getDailySummary(childId: string, dateStr: string) {
     const date = new Date(dateStr);
@@ -44,7 +44,7 @@ export class DailySummaryService {
     // Filtra apenas tarefas que pagam (valor positivo e não são descontos)
     const payingCompletedTasks = completedTasks.filter(
       (ct) =>
-        !ct.task.isDiscount && !ct.task.isBonus && parseFloat(ct.task.value) > 0
+        !ct.task.isDiscount && !ct.task.isBonus
     );
 
     return {
