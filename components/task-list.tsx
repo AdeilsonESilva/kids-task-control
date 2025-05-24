@@ -164,11 +164,14 @@ export function TaskList({
                 transition={{ duration: 0.3 }}
                 layout
               >
-                <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
+                <Card
+                  className="p-4 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => handleTaskCompletion(task.id)}
+                >
                   <div className="flex items-center gap-4">
                     <Checkbox
                       checked={completedTasks.includes(task.id)}
-                      onCheckedChange={() => handleTaskCompletion(task.id)}
+                      onCheckedChange={() => {}}
                       className="transition-all duration-200"
                     />
                     <div
@@ -206,11 +209,14 @@ export function TaskList({
                 transition={{ duration: 0.3 }}
                 layout
               >
-                <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
+                <Card
+                  className="p-4 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => handleTaskCompletion(task.id)}
+                >
                   <div className="flex items-center gap-4">
                     <Checkbox
                       checked={completedTasks.includes(task.id)}
-                      onCheckedChange={() => handleTaskCompletion(task.id)}
+                      onCheckedChange={() => {}}
                       className="transition-all duration-200"
                     />
                     <div
@@ -248,11 +254,14 @@ export function TaskList({
                 transition={{ duration: 0.3 }}
                 layout
               >
-                <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
+                <Card
+                  className="p-4 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
+                  onClick={() => handleTaskCompletion(task.id)}
+                >
                   <div className="flex items-center gap-4">
                     <Checkbox
                       checked={completedTasks.includes(task.id)}
-                      onCheckedChange={() => handleTaskCompletion(task.id)}
+                      onCheckedChange={() => {}}
                       className="transition-all duration-200"
                     />
                     <div
