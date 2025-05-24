@@ -38,7 +38,7 @@ export class DailySummaryService {
     // Tarefas com isDiscount=true devem subtrair do valor total
     const totalValue = completedTasks.reduce((sum, ct) => {
       const taskValue = parseFloat(ct.task.value);
-      return ct.task.isDiscount ? sum - taskValue : sum + taskValue;
+      return ct.task.isDiscount ? sum - 0 : sum + taskValue;
     }, 0);
 
     // Filtra apenas tarefas que pagam (valor positivo e não são descontos)
