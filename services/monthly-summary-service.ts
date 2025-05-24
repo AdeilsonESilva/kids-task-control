@@ -3,7 +3,7 @@ import { Database } from "@/types/supabase";
 import { startOfMonth, endOfMonth } from "date-fns";
 
 export class MonthlySummaryService {
-  constructor(private db: SupabaseClient<Database>) {}
+  constructor(private db: SupabaseClient<Database>) { }
 
   async getMonthlySummary(childId: string, dateStr: string) {
     const date = new Date(dateStr);
@@ -17,7 +17,8 @@ export class MonthlySummaryService {
         *,
         Task (
           value,
-          isDiscount
+          isDiscount,
+          isBonus
         )
       `
       )
@@ -46,7 +47,7 @@ export class MonthlySummaryService {
     return {
       totalValue,
       totalDiscounts,
-      completedTasks: completedTasks.filter((ct) => !ct.Task.isDiscount).length,
+      completedTasks: completedTasks.filter((ct) => !ct.Task.isDiscount && !ct.Task.isBonus).length,
       dailyAverageValue,
     };
   }
