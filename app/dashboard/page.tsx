@@ -11,10 +11,10 @@ import { MainNav } from "@/components/main-nav";
 import { motion } from "framer-motion";
 
 export default function Dashboard() {
+  const today = new Date();
+  today.setHours(0,0,0,0)
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
-  );
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
   const [updateTrigger, setUpdateTrigger] = useState(0);
 
   return (
