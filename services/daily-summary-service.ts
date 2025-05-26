@@ -1,6 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/types/supabase";
-import { startOfDay, endOfDay } from "date-fns";
+import { startOfDay, endOfDay, startOfWeek, endOfWeek } from "date-fns";
 
 export class DailySummaryService {
   constructor(private db: SupabaseClient<Database>) { }
@@ -9,6 +9,7 @@ export class DailySummaryService {
     const date = new Date(dateStr);
     const dayStart = startOfDay(date).toISOString();
     const dayEnd = endOfDay(date).toISOString();
+    const { firstDay, lastDay } = this.getWeekBoundaries(date);
 
     // Busca tarefas completadas com suas tarefas relacionadas
     const { data: completedTasks, error: completedTasksError } = await this.db
@@ -34,6 +35,23 @@ export class DailySummaryService {
 
     if (countError) throw countError;
 
+    // Busca tarefas completadas com suas tarefas relacionadas
+    const { data: tasksWithDiscountOnWeek, error: tasksWithDiscountOnWeekError } = await this.db
+      .from("CompletedTask")
+      .select(
+        `
+        *,
+        task:Task(*)
+      `
+      )
+      .eq("childId", childId)
+      .eq("task.isDiscount", true)
+      .gte("date", firstDay)
+      .lte("date", lastDay);
+
+    if (tasksWithDiscountOnWeekError) throw tasksWithDiscountOnWeekError;
+
+
     // Calcula o valor total das tarefas completadas
     // Tarefas com isDiscount=true devem subtrair do valor total
     const totalValue = completedTasks.reduce((sum, ct) => {
@@ -47,10 +65,29 @@ export class DailySummaryService {
         !ct.task.isDiscount && !ct.task.isBonus
     );
 
+    const totalDiscountWeek = tasksWithDiscountOnWeek.reduce((sum, ct) => {
+      const taskValue = parseFloat(ct.task?.value || '0');
+      return sum + taskValue;
+    }, 0);
+
     return {
       totalValue,
       completedTasks: payingCompletedTasks.length,
       totalTasks: totalTasks || 0,
+      totalDiscountWeek
+    };
+  }
+
+
+  getWeekBoundaries(selectedDate: Date) {
+    const mondayDay = 1;
+    const firstDayOfWeek = mondayDay;
+    const monday = startOfWeek(selectedDate, { weekStartsOn: firstDayOfWeek }).toISOString();
+    const sunday = endOfWeek(selectedDate, { weekStartsOn: firstDayOfWeek }).toISOString();
+
+    return {
+      firstDay: monday,
+      lastDay: sunday
     };
   }
 }

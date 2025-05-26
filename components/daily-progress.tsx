@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
-import { Progress } from "./ui/progress";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -17,6 +16,7 @@ interface DailySummary {
   totalValue: number;
   completedTasks: number;
   totalTasks: number;
+  totalDiscountWeek: number;
 }
 
 export function DailyProgress({
@@ -28,6 +28,7 @@ export function DailyProgress({
     totalValue: 0,
     completedTasks: 0,
     totalTasks: 0,
+    totalDiscountWeek: 0,
   });
 
   useEffect(() => {
@@ -38,6 +39,7 @@ export function DailyProgress({
         totalValue: 0,
         completedTasks: 0,
         totalTasks: 0,
+        totalDiscountWeek: 0,
       });
     }
   }, [selectedChild, selectedDate, updateTrigger]);
@@ -53,11 +55,6 @@ export function DailyProgress({
       console.error("Error fetching daily summary:", error);
     }
   };
-
-  const progress =
-    summary.totalTasks > 0
-      ? (summary.completedTasks / summary.totalTasks) * 100
-      : 0;
 
   const formattedDate = selectedDate
     ? format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
@@ -82,7 +79,7 @@ export function DailyProgress({
           >
             <Card className="p-4 bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900 dark:to-green-800 h-24">
               <h3 className="text-sm font-medium text-green-800 dark:text-green-100">
-                Valor Total do Dia
+                Total do dia
               </h3>
               <p className="text-2xl font-bold text-green-600 dark:text-green-300">
                 R$ {summary.totalValue.toFixed(2)}
@@ -97,7 +94,7 @@ export function DailyProgress({
           >
             <Card className="p-4 bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900 dark:to-blue-800 h-24">
               <h3 className="text-sm font-medium text-blue-800 dark:text-blue-100">
-                Tarefas Pagas Completadas
+                Tarefas pagas
               </h3>
               <p className="text-2xl font-bold text-blue-600 dark:text-blue-300">
                 {summary.completedTasks} / {summary.totalTasks}
@@ -108,19 +105,14 @@ export function DailyProgress({
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
+            transition={{ duration: 0.3 }}
           >
-            <Card className="p-4 bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900 dark:to-purple-800 h-24">
-              <h3 className="text-sm font-medium text-purple-800 dark:text-purple-100">
-                Progresso de Tarefas Pagas
+            <Card className="p-4 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900 dark:to-red-800 h-24">
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-100">
+                Total descontos da semana
               </h3>
-              <Progress
-                value={progress}
-                className="mt-2 bg-purple-100 dark:bg-purple-900"
-                indicatorClassName="bg-purple-600 dark:bg-purple-400"
-              />
-              <p className="text-sm font-medium text-purple-600 dark:text-purple-300 mt-1">
-                {progress.toFixed(0)}%
+              <p className="text-2xl font-bold text-red-600 dark:text-red-300">
+                R$ {summary.totalDiscountWeek.toFixed(2)}
               </p>
             </Card>
           </motion.div>
