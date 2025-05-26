@@ -40,17 +40,16 @@ export class DailySummaryService {
       .from("CompletedTask")
       .select(
         `
-        *,
-        task:Task(*)
+        *, 
+        task:Task!inner(value)
       `
       )
-      .eq("childId", childId)
       .eq("task.isDiscount", true)
+      .eq("childId", childId)
       .gte("date", firstDay)
       .lte("date", lastDay);
 
     if (tasksWithDiscountOnWeekError) throw tasksWithDiscountOnWeekError;
-
 
     // Calcula o valor total das tarefas completadas
     // Tarefas com isDiscount=true devem subtrair do valor total
@@ -66,7 +65,7 @@ export class DailySummaryService {
     );
 
     const totalDiscountWeek = tasksWithDiscountOnWeek.reduce((sum, ct) => {
-      const taskValue = parseFloat(ct.task?.value || '0');
+      const taskValue = parseFloat(ct.task.value);
       return sum + taskValue;
     }, 0);
 
