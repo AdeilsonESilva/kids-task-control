@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { apiClient } from "@/lib/api-client";
 
 interface Child {
   id: string;
@@ -45,8 +46,7 @@ export function ChildrenManagementDialog({
 
   const fetchChildren = async () => {
     try {
-      const response = await fetch("/api/children");
-      const data = await response.json();
+      const data = await apiClient<Child[]>("/api/children");
       setChildren(data);
     } catch (error) {
       console.error("Error fetching children:", error);
@@ -62,22 +62,16 @@ export function ChildrenManagementDialog({
     if (!newChildName.trim()) return;
 
     try {
-      const response = await fetch("/api/children", {
+      await apiClient<Child>("/api/children", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ name: newChildName }),
       });
-
-      if (response.ok) {
-        setNewChildName("");
-        await fetchChildren();
-        toast({
-          title: "Sucesso",
-          description: "Criança adicionada com sucesso!",
-        });
-      }
+      setNewChildName("");
+      await fetchChildren();
+      toast({
+        title: "Sucesso",
+        description: "Criança adicionada com sucesso!",
+      });
     } catch (error) {
       console.error("Error adding child:", error);
       toast({
@@ -92,22 +86,16 @@ export function ChildrenManagementDialog({
     if (!editingChild || !editingChild.name.trim()) return;
 
     try {
-      const response = await fetch(`/api/children/${editingChild.id}`, {
+      await apiClient<Child>(`/api/children/${editingChild.id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ name: editingChild.name }),
       });
-
-      if (response.ok) {
-        setEditingChild(null);
-        await fetchChildren();
-        toast({
-          title: "Sucesso",
-          description: "Nome atualizado com sucesso!",
-        });
-      }
+      setEditingChild(null);
+      await fetchChildren();
+      toast({
+        title: "Sucesso",
+        description: "Nome atualizado com sucesso!",
+      });
     } catch (error) {
       console.error("Error updating child:", error);
       toast({
@@ -120,17 +108,15 @@ export function ChildrenManagementDialog({
 
   const handleDeleteChild = async (childId: string) => {
     try {
-      const response = await fetch(`/api/children/${childId}`, {
+      await apiClient(`/api/children/${childId}`, {
         method: "DELETE",
       });
 
-      if (response.ok) {
-        await fetchChildren();
-        toast({
-          title: "Sucesso",
-          description: "Criança removida com sucesso!",
-        });
-      }
+      await fetchChildren();
+      toast({
+        title: "Sucesso",
+        description: "Criança removida com sucesso!",
+      });
     } catch (error) {
       console.error("Error deleting child:", error);
       toast({

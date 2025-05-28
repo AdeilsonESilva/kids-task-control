@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings, Users, ListTodo } from "lucide-react";
+import { Settings, Users, ListTodo, LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -13,10 +13,13 @@ import { useState, useCallback } from "react";
 import { ChildrenManagementDialog } from "./children-management-dialog";
 import { TaskManagementDialog } from "./task-management-dialog";
 import { ThemeToggle } from "./theme-toggle";
+import { useAuth } from "./auth/auth-provider";
 
 export function MainNav() {
   const [isChildrenDialogOpen, setIsChildrenDialogOpen] = useState(false);
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
+
+  const { signOut } = useAuth();
 
   const handleChildrenDialogChange = useCallback((open: boolean) => {
     setIsChildrenDialogOpen(open);
@@ -46,6 +49,10 @@ export function MainNav() {
             <DropdownMenuItem onClick={() => handleTaskDialogChange(true)}>
               <ListTodo className="mr-2 h-4 w-4" />
               Gerenciar Tarefas
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={signOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sair
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

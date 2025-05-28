@@ -1,4 +1,3 @@
-// lib/api-context.ts
 import { createClient } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import type { Database } from "@/types/supabase";
