@@ -5,6 +5,7 @@ import { Card } from "./ui/card";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { apiClient } from "@/lib/api-client";
 
 interface DailyProgressProps {
   selectedChild: string | null;
@@ -46,10 +47,9 @@ export function DailyProgress({
 
   const fetchDailySummary = async () => {
     try {
-      const response = await fetch(
+      const data = await apiClient<DailySummary>(
         `/api/daily-summary?childId=${selectedChild}&date=${selectedDate?.toISOString()}`
       );
-      const data = await response.json();
       setSummary(data);
     } catch (error) {
       console.error("Error fetching daily summary:", error);

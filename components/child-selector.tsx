@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { motion } from "framer-motion";
+import { apiClient } from "@/lib/api-client";
 
 interface Child {
   id: string;
@@ -26,8 +27,7 @@ export function ChildSelector({
 
   const fetchChildren = async () => {
     try {
-      const response = await fetch("/api/children");
-      const data = await response.json();
+      const data = await apiClient<Child[]>("/api/children");
       setChildren(data);
     } catch (error) {
       console.error("Error fetching children:", error);
