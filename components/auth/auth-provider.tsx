@@ -22,23 +22,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // useEffect(() => {
-  //   // Verificar sessão atual
-  //   supabase.auth.getSession().then(({ data: { session } }) => {
-  //     setUser(session?.user ?? null);
-  //     setLoading(false);
-  //   });
+  useEffect(() => {
+    // Verificar sessão atual
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
-  //   // Escutar mudanças na autenticação
-  //   const {
-  //     data: { subscription },
-  //   } = supabase.auth.onAuthStateChange((_event, session) => {
-  //     setUser(session?.user ?? null);
-  //     setLoading(false);
-  //   });
+    // Escutar mudanças na autenticação
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
-  //   return () => subscription.unsubscribe();
-  // }, []);
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const {

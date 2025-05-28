@@ -9,16 +9,28 @@ import { CalendarView } from "@/components/calendar-view";
 import { MonthlySummary } from "@/components/monthly-summary";
 import { MainNav } from "@/components/main-nav";
 import { motion } from "framer-motion";
-// import { useAuth } from "@/components/auth/auth-provider";
+import { useAuth } from "@/components/auth/auth-provider";
+import { redirect } from "next/navigation";
 
 export default function Dashboard() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
   const [updateTrigger, setUpdateTrigger] = useState(0);
 
-  // const { user, loading } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>; 
+  }
+
+  if (!user) {
+    return redirect("/login");
+  }
+
+  // supabase.auth.getUser()
 
   // if (loading) {
   //   return <div>Loading...</div>;
