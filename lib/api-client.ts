@@ -4,11 +4,9 @@ export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const { data, error } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (error || !data?.user) {
     throw new Error("Não autenticado");
   }
 

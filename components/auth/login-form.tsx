@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
@@ -28,25 +28,25 @@ export function LoginForm() {
         throw error;
       }
 
-      if (data.session) {
-        try {
-          const { error: sessionError } = await supabase.auth.setSession({
-            access_token: data.session.access_token,
-            refresh_token: data.session.refresh_token,
-          });
+      // if (data.session) {
+        // try {
+          // const { error: sessionError } = await supabase.auth.setSession({
+          //   access_token: data.session.access_token,
+          //   refresh_token: data.session.refresh_token,
+          // });
 
-          if (sessionError) {
-            throw sessionError;
-          }
+          // if (sessionError) {
+          //   throw sessionError;
+          // }
 
           toast.success("Login realizado com sucesso!");
           router.push("/dashboard");
-        } catch (sessionError: any) {
-          toast.error(sessionError.message || "Erro ao definir sessão");
-        }
-      } else {
-        throw new Error("Sessão não criada");
-      }
+        // } catch (sessionError: any) {
+        //   toast.error(sessionError.message || "Erro ao definir sessão");
+        // }
+      // } else {
+      //   throw new Error("Sessão não criada");
+      // }
     } catch (error: any) {
       toast.error(error.message || "Erro ao fazer login");
     } finally {

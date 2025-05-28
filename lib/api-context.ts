@@ -1,5 +1,6 @@
 // lib/api-context.ts
 import { createClient } from "@supabase/supabase-js";
+// import { supabase, supabaseSC } from "./supabase";
 import { supabase } from "./supabase";
 import type { Database } from "@/types/supabase";
 
@@ -10,6 +11,9 @@ export interface ApiContext {
 
 // Função para criar o contexto da API
 export function createApiContext(): ApiContext {
+  // const aa = () => {
+  //   return supabaseSC.then();
+  // }
   return { db: supabase };
 }
 

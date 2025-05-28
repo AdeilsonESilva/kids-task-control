@@ -9,7 +9,7 @@ import { CalendarView } from "@/components/calendar-view";
 import { MonthlySummary } from "@/components/monthly-summary";
 import { MainNav } from "@/components/main-nav";
 import { motion } from "framer-motion";
-import { useAuth } from "@/components/auth/auth-provider";
+// import { useAuth } from "@/components/auth/auth-provider";
 
 export default function Dashboard() {
   const today = new Date();
@@ -18,15 +18,15 @@ export default function Dashboard() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
   const [updateTrigger, setUpdateTrigger] = useState(0);
 
-  const { user, loading } = useAuth();
+  // const { user, loading } = useAuth();
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // if (loading) {
+  //   return <div>Loading...</div>;
+  // }
 
-  if (!user) {
-    return <div>Acesso negado</div>;
-  }
+  // if (!user) {
+  //   return <div>Acesso negado</div>;
+  // }
 
   return (
     <div className="min-h-screen bg-background">

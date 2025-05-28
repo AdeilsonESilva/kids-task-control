@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import { ApiContext, getApiContext } from "./api-context";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+// import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+// import { cookies } from "next/headers";
+import { createClient } from "./supabase-server";
+// import { supabaseSC } from "./supabase";
 
 type ApiHandler<T = any> = (
   context: ApiContext,
@@ -11,15 +12,10 @@ type ApiHandler<T = any> = (
 ) => Promise<T>;
 
 async function checkAuth(request: Request) {
-  const cookieStore = cookies();
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getUser()
 
-  const {
-    data: { session },
-    error,
-  } = await supabase.auth.getSession();
-
-  if (error || !session) {
+  if (error || !data?.user) {
     return false;
   }
 

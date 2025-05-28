@@ -27,7 +27,9 @@ export function ChildSelector({
 
   const fetchChildren = async () => {
     try {
-      const data = await apiClient<Child[]>("/api/children");
+      // const data = await apiClient<Child[]>("/api/children");
+      const response = await fetch("/api/children");
+      const data = await response.json();
       setChildren(data);
     } catch (error) {
       console.error("Error fetching children:", error);
