@@ -6,13 +6,14 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/use-toast";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,10 +29,16 @@ export function LoginForm() {
         throw error;
       }
 
-      toast.success("Login realizado com sucesso!");
+      toast({
+        title: "Login",
+        description: "Login realizado com sucesso!",
+      });
       router.push("/dashboard");
     } catch (error: any) {
-      toast.error(error.message || "Erro ao fazer login");
+      toast({
+        title: "Login erro",
+        description: error.message || "Erro ao fazer login",
+      });
     } finally {
       setLoading(false);
     }
