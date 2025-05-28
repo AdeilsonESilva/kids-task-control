@@ -13,7 +13,9 @@ import { motion } from "framer-motion";
 export default function Dashboard() {
   const today = new Date();
   today.setHours(0,0,0,0)
-  alert(today)
+  if (typeof window !== 'undefined') {
+    alert(today)
+  }
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
   const [updateTrigger, setUpdateTrigger] = useState(0);
