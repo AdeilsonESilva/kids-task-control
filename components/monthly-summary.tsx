@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { motion } from "framer-motion";
+import { apiClient } from "@/lib/api-client";
 
 interface MonthlySummaryProps {
   selectedChild: string | null;
@@ -39,10 +40,9 @@ export function MonthlySummary({
 
   const fetchMonthlySummary = async () => {
     try {
-      const response = await fetch(
+      const data = await apiClient<MonthlySummary>(
         `/api/monthly-summary?childId=${selectedChild}&date=${selectedDate?.toISOString()}`
       );
-      const data = await response.json();
       setSummary(data);
     } catch (error) {
       console.error("Error fetching monthly summary:", error);

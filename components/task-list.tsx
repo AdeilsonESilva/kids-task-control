@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
 import { TaskDialog } from "./task-dialog";
 import { Task } from "@/types/task";
+import { apiClient } from "@/lib/api-client";
 
 interface TaskListProps {
   selectedChild: string | null;
@@ -42,8 +43,7 @@ export function TaskList({
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch("/api/tasks");
-      const data: Task[] = await response.json();
+      const data = await apiClient<Task[]>("/api/tasks");
       setTasks(data.filter((task) => !task.isDiscount && !task.isBonus));
       setTasksDiscount(data.filter((task) => task.isDiscount));
       setTasksBonus(data.filter((task) => task.isBonus));
@@ -61,11 +61,10 @@ export function TaskList({
     if (!selectedChild || !selectedDate) return;
 
     try {
-      const response = await fetch(
+      const data = await apiClient<{ taskId: string }[]>(
         `/api/completed-tasks?childId=${selectedChild}&date=${selectedDate.toISOString()}`
       );
-      const data = await response.json();
-      setCompletedTasks(data.map((ct: { taskId: string }) => ct.taskId));
+      setCompletedTasks(data.map((ct) => ct.taskId));
     } catch (error) {
       console.error("Error fetching completed tasks:", error);
       toast({
@@ -87,38 +86,35 @@ export function TaskList({
     }
 
     try {
-      const response = await fetch("/api/completed-tasks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          taskId,
-          childId: selectedChild,
-          date: selectedDate.toISOString(),
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.message === "Task uncompleted") {
-          setCompletedTasks(completedTasks.filter((id) => id !== taskId));
-          toast({
-            title: "Tarefa desmarcada",
-            description: "A tarefa foi desmarcada com sucesso.",
-          });
-        } else {
-          setCompletedTasks([...completedTasks, taskId]);
-          toast({
-            title: "Tarefa completada",
-            description: "A tarefa foi marcada como concluída.",
-          });
+      const data = await apiClient<{ message?: string }>(
+        "/api/completed-tasks",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            taskId,
+            childId: selectedChild,
+            date: selectedDate.toISOString(),
+          }),
         }
+      );
 
-        // Incrementar o trigger para forçar a atualização dos resumos
-        if (onUpdateTrigger) {
-          onUpdateTrigger();
-        }
+      if (data.message === "Task uncompleted") {
+        setCompletedTasks(completedTasks.filter((id) => id !== taskId));
+        toast({
+          title: "Tarefa desmarcada",
+          description: "A tarefa foi desmarcada com sucesso.",
+        });
+      } else {
+        setCompletedTasks([...completedTasks, taskId]);
+        toast({
+          title: "Tarefa completada",
+          description: "A tarefa foi marcada como concluída.",
+        });
+      }
+
+      // Incrementar o trigger para forçar a atualização dos resumos
+      if (onUpdateTrigger) {
+        onUpdateTrigger();
       }
     } catch (error) {
       console.error("Error completing task:", error);

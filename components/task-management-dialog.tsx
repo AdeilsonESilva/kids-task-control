@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
 import { Task } from "@/types/task";
+import { apiClient } from "@/lib/api-client";
 
 interface TaskManagementDialogProps {
   open: boolean;
@@ -59,8 +60,7 @@ export function TaskManagementDialog({
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch("/api/tasks");
-      const data: Task[] = await response.json();
+      const data = await apiClient<Task[]>("/api/tasks");
       setTasks(data.filter((task) => !task.isDiscount && !task.isBonus));
       setTasksDiscount(data.filter((task) => task.isDiscount));
       setTasksBonus(data.filter((task) => task.isBonus));
@@ -78,7 +78,7 @@ export function TaskManagementDialog({
     if (!newTask.title.trim() || !newTask.value) return;
 
     try {
-      const response = await fetch("/api/tasks", {
+      await apiClient("/api/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,14 +92,12 @@ export function TaskManagementDialog({
         }),
       });
 
-      if (response.ok) {
-        resetForm();
-        await fetchTasks();
-        toast({
-          title: "Sucesso",
-          description: "Tarefa adicionada com sucesso!",
-        });
-      }
+      resetForm();
+      await fetchTasks();
+      toast({
+        title: "Sucesso",
+        description: "Tarefa adicionada com sucesso!",
+      });
     } catch (error) {
       console.error("Error adding task:", error);
       toast({
@@ -114,7 +112,7 @@ export function TaskManagementDialog({
     if (!editingTask || !editingTask.title.trim()) return;
 
     try {
-      const response = await fetch(`/api/tasks/${editingTask.id}`, {
+      await apiClient(`/api/tasks/${editingTask.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -128,14 +126,12 @@ export function TaskManagementDialog({
         }),
       });
 
-      if (response.ok) {
-        setEditingTask(null);
-        await fetchTasks();
-        toast({
-          title: "Sucesso",
-          description: "Tarefa atualizada com sucesso!",
-        });
-      }
+      setEditingTask(null);
+      await fetchTasks();
+      toast({
+        title: "Sucesso",
+        description: "Tarefa atualizada com sucesso!",
+      });
     } catch (error) {
       console.error("Error updating task:", error);
       toast({
@@ -148,17 +144,15 @@ export function TaskManagementDialog({
 
   const handleDeleteTask = async (taskId: string) => {
     try {
-      const response = await fetch(`/api/tasks/${taskId}`, {
+      await apiClient(`/api/tasks/${taskId}`, {
         method: "DELETE",
       });
 
-      if (response.ok) {
-        await fetchTasks();
-        toast({
-          title: "Sucesso",
-          description: "Tarefa removida com sucesso!",
-        });
-      }
+      await fetchTasks();
+      toast({
+        title: "Sucesso",
+        description: "Tarefa removida com sucesso!",
+      });
     } catch (error) {
       console.error("Error deleting task:", error);
       toast({
