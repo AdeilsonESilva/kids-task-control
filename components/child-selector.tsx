@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { motion } from "framer-motion";
-import { apiClient } from "@/lib/api-client";
 
 interface Child {
   id: string;
@@ -27,7 +26,6 @@ export function ChildSelector({
 
   const fetchChildren = async () => {
     try {
-      // const data = await apiClient<Child[]>("/api/children");
       const response = await fetch("/api/children");
       const data = await response.json();
       setChildren(data);

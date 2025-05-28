@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { ApiContext, getApiContext } from "./api-context";
-// import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-// import { cookies } from "next/headers";
 import { createClient } from "./supabase-server";
-// import { supabaseSC } from "./supabase";
 
 type ApiHandler<T = any> = (
   context: ApiContext,

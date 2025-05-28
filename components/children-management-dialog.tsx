@@ -62,11 +62,10 @@ export function ChildrenManagementDialog({
     if (!newChildName.trim()) return;
 
     try {
-      const data = await apiClient<Child>("/api/children", {
+      await apiClient<Child>("/api/children", {
         method: "POST",
         body: JSON.stringify({ name: newChildName }),
       });
-
       setNewChildName("");
       await fetchChildren();
       toast({
@@ -87,11 +86,10 @@ export function ChildrenManagementDialog({
     if (!editingChild || !editingChild.name.trim()) return;
 
     try {
-      const data = await apiClient<Child>(`/api/children/${editingChild.id}`, {
+      await apiClient<Child>(`/api/children/${editingChild.id}`, {
         method: "PUT",
         body: JSON.stringify({ name: editingChild.name }),
       });
-
       setEditingChild(null);
       await fetchChildren();
       toast({

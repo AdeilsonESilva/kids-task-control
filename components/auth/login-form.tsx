@@ -28,25 +28,8 @@ export function LoginForm() {
         throw error;
       }
 
-      // if (data.session) {
-        // try {
-          // const { error: sessionError } = await supabase.auth.setSession({
-          //   access_token: data.session.access_token,
-          //   refresh_token: data.session.refresh_token,
-          // });
-
-          // if (sessionError) {
-          //   throw sessionError;
-          // }
-
-          toast.success("Login realizado com sucesso!");
-          router.push("/dashboard");
-        // } catch (sessionError: any) {
-        //   toast.error(sessionError.message || "Erro ao definir sessão");
-        // }
-      // } else {
-      //   throw new Error("Sessão não criada");
-      // }
+      toast.success("Login realizado com sucesso!");
+      router.push("/dashboard");
     } catch (error: any) {
       toast.error(error.message || "Erro ao fazer login");
     } finally {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { TaskList } from "@/components/task-list";
 import { ChildSelector } from "@/components/child-selector";
@@ -10,7 +10,7 @@ import { MonthlySummary } from "@/components/monthly-summary";
 import { MainNav } from "@/components/main-nav";
 import { motion } from "framer-motion";
 import { useAuth } from "@/components/auth/auth-provider";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
   const today = new Date();
@@ -22,23 +22,20 @@ export default function Dashboard() {
 
   const { user, loading } = useAuth();
 
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user)
+      router.push("/login");
+  }, [loading, user, router])
+
   if (loading) {
     return <div>Loading...</div>; 
   }
 
   if (!user) {
-    return redirect("/login");
+    return <div>Acesso negado...</div>;
   }
-
-  // supabase.auth.getUser()
-
-  // if (loading) {
-  //   return <div>Loading...</div>;
-  // }
-
-  // if (!user) {
-  //   return <div>Acesso negado</div>;
-  // }
 
   return (
     <div className="min-h-screen bg-background">
