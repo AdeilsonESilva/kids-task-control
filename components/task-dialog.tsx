@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { Task } from "@/types/task";
+import { apiClient } from "@/lib/api-client";
 
 interface TaskDialogProps {
   open: boolean;
@@ -59,7 +60,7 @@ export function TaskDialog({
     };
 
     try {
-      const response = await fetch(
+      await apiClient(
         task ? `/api/tasks/${task.id}` : "/api/tasks",
         {
           method: task ? "PUT" : "POST",
@@ -70,14 +71,12 @@ export function TaskDialog({
         }
       );
 
-      if (response.ok) {
-        toast({
-          title: task ? "Tarefa atualizada!" : "Tarefa criada!",
-          description: "A operação foi realizada com sucesso.",
-        });
-        onOpenChange(false);
-        onSuccess?.();
-      }
+      toast({
+        title: task ? "Tarefa atualizada!" : "Tarefa criada!",
+        description: "A operação foi realizada com sucesso.",
+      });
+      onOpenChange(false);
+      onSuccess?.();
     } catch (error) {
       console.error("Error saving task:", error);
       toast({
