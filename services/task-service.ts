@@ -1,12 +1,15 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/types/supabase";
-import { TaskInput } from "@/types/task";
+import { Task, TaskInput } from "@/types/task";
 
 export class TaskService {
   constructor(private db: SupabaseClient<Database>) {}
 
   async getAllTasks() {
-    const { data, error } = await this.db.from("Task").select("*");
+    const { data, error } = await this.db
+      .from("Task")
+      .select("*")
+      .order("order", { ascending: true });
 
     if (error) throw error;
 
@@ -36,6 +39,27 @@ export class TaskService {
     if (error) throw error;
 
     return data;
+  }
+
+  async updateTasksOrder(tasks: Partial<Task>[]) {
+    try {
+      const results = await Promise.all(
+        tasks.map(async (task) => {
+          const { data, error } = await this.db
+            .from("Task")
+            .update({ order: task.order })
+            .eq("id", task.id)
+            .select();
+
+          if (error) throw error;
+          return data?.[0];
+        })
+      );
+
+      return results;
+    } catch (err) {
+      throw new Error("Erro ao atualizar a ordem das tarefas: " + String(err));
+    }
   }
 
   async deleteTask(id: string) {
