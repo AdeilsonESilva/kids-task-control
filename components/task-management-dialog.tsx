@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, MouseEventHandler } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,10 +16,198 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
 import { Task } from "@/types/task";
 import { apiClient } from "@/lib/api-client";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  restrictToVerticalAxis,
+  restrictToWindowEdges,
+} from "@dnd-kit/modifiers";
 
 interface TaskManagementDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+function SortableTaskCard({
+  task,
+  onEdit,
+  onDelete,
+  isEditing,
+  editingTask,
+  setEditingTask,
+  onUpdate,
+}: {
+  task: Task;
+  onEdit: (task: Task) => void;
+  onDelete: (id: string) => void;
+  isEditing: boolean;
+  editingTask: Task | null;
+  setEditingTask: (task: Task | null) => void;
+  onUpdate: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: task.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <Card className="p-4">
+        {isEditing && editingTask ? (
+          <div className="space-y-2">
+            <Input
+              value={editingTask.title}
+              onPointerDown={(e) => e.stopPropagation()}
+              onChange={(e) =>
+                setEditingTask({
+                  ...editingTask,
+                  title: e.target.value,
+                })
+              }
+              className="mb-2"
+            />
+            <Textarea
+              value={editingTask.description}
+              onPointerDown={(e) => e.stopPropagation()}
+              onChange={(e) =>
+                setEditingTask({
+                  ...editingTask,
+                  description: e.target.value,
+                })
+              }
+              className="mb-2"
+            />
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                value={Math.abs(editingTask.value)}
+                onPointerDown={(e) => e.stopPropagation()}
+                onChange={(e) =>
+                  setEditingTask({
+                    ...editingTask,
+                    value: parseFloat(e.target.value),
+                  })
+                }
+              />
+              <Button
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={onUpdate}
+                className="bg-green-500 hover:bg-green-600"
+              >
+                Salvar
+              </Button>
+            </div>
+            <div className="flex gap-2 mb-2 sm:gap-24">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id={`edit-task-is-discount-${task.id}`}
+                  name={`edit-task-type-${task.id}`}
+                  checked={editingTask.isDiscount}
+                  onChange={() => {}}
+                  onClick={() =>
+                    setEditingTask({
+                      ...editingTask,
+                      isDiscount: !editingTask.isDiscount,
+                      isBonus: false,
+                    })
+                  }
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <label
+                  htmlFor={`edit-task-is-discount-${task.id}`}
+                  className="text-sm font-medium"
+                >
+                  É um desconto (valor negativo)
+                </label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id={`edit-task-is-bonus-${task.id}`}
+                  name={`edit-task-type-${task.id}`}
+                  checked={editingTask.isBonus}
+                  onChange={() => {}}
+                  onClick={() =>
+                    setEditingTask({
+                      ...editingTask,
+                      isBonus: !editingTask.isBonus,
+                      isDiscount: false,
+                    })
+                  }
+                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <label
+                  htmlFor={`edit-task-is-bonus-${task.id}`}
+                  className="text-sm font-medium"
+                >
+                  Bônus
+                </label>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="font-medium">{task.title}</h3>
+              <p className="text-sm text-muted-foreground">
+                {task.description}
+              </p>
+              <p
+                className={`text-sm font-semibold ${
+                  task.isDiscount
+                    ? "text-red-600 dark:text-red-400"
+                    : task.isBonus
+                    ? "text-yellow-600 dark:text-yellow-400"
+                    : "text-green-600 dark:text-green-400"
+                }`}
+              >
+                R$ {task.value.toFixed(2)}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => onEdit(task)}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="destructive"
+                size="icon"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => onDelete(task.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
 }
 
 export function TaskManagementDialog({
@@ -38,6 +226,13 @@ export function TaskManagementDialog({
     isBonus: false,
   });
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     if (open) {
@@ -168,6 +363,41 @@ export function TaskManagementDialog({
     resetForm();
   };
 
+  const handleDragEnd = async (event: DragEndEvent, tasksToOrder: Task[]) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = tasksToOrder.findIndex((task) => task.id === active.id);
+      const newIndex = tasksToOrder.findIndex((task) => task.id === over.id);
+
+      const newTasks = arrayMove(tasksToOrder, oldIndex, newIndex);
+      setTasks(newTasks);
+
+      // Atualizar a ordem no backend
+      try {
+        await apiClient("/api/tasks/reorder", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            taskIds: newTasks.map((task) => task.id),
+          }),
+        });
+      } catch (error) {
+        console.error("Error reordering tasks:", error);
+        toast({
+          title: "Erro",
+          description: "Não foi possível atualizar a ordem das tarefas.",
+          variant: "destructive",
+        });
+      } finally {
+        // Recarregar as tarefas em caso de erro
+        await fetchTasks();
+      }
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[600px]">
@@ -266,147 +496,40 @@ export function TaskManagementDialog({
             {tasks.length > 0 && (
               <div className="mb-4">
                 <h3 className="text-lg font-medium mb-2">Tarefas</h3>
-                <AnimatePresence mode="popLayout">
-                  {tasks.map((task) => (
-                    <motion.div
-                      key={task.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.2 }}
-                      layout
-                    >
-                      <Card className="p-4">
-                        {editingTask?.id === task.id ? (
-                          <div className="space-y-2">
-                            <Input
-                              value={editingTask.title}
-                              onChange={(e) =>
-                                setEditingTask({
-                                  ...editingTask,
-                                  title: e.target.value,
-                                })
-                              }
-                              className="mb-2"
-                            />
-                            <Textarea
-                              value={editingTask.description}
-                              onChange={(e) =>
-                                setEditingTask({
-                                  ...editingTask,
-                                  description: e.target.value,
-                                })
-                              }
-                              className="mb-2"
-                            />
-                            <div className="flex gap-2">
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={Math.abs(editingTask.value)}
-                                onChange={(e) =>
-                                  setEditingTask({
-                                    ...editingTask,
-                                    value: parseFloat(e.target.value),
-                                  })
-                                }
-                              />
-                              <Button
-                                onClick={handleUpdateTask}
-                                className="bg-green-500 hover:bg-green-600"
-                              >
-                                Salvar
-                              </Button>
-                            </div>
-                            <div className="flex gap-2 mb-2 sm:gap-24">
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="radio"
-                                  id={`edit-task-is-discount-${task.id}`}
-                                  name={`edit-task-type-${task.id}`}
-                                  checked={editingTask.isDiscount}
-                                  onChange={() => {}}
-                                  onClick={() =>
-                                    setEditingTask({
-                                      ...editingTask,
-                                      isDiscount: !editingTask.isDiscount,
-                                      isBonus: false,
-                                    })
-                                  }
-                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                />
-                                <label
-                                  htmlFor={`edit-task-is-discount-${task.id}`}
-                                  className="text-sm font-medium"
-                                >
-                                  É um desconto (valor negativo)
-                                </label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="radio"
-                                  id={`edit-task-is-bonus-${task.id}`}
-                                  name={`edit-task-type-${task.id}`}
-                                  checked={editingTask.isBonus}
-                                  onChange={() => {}}
-                                  onClick={() =>
-                                    setEditingTask({
-                                      ...editingTask,
-                                      isBonus: !editingTask.isBonus,
-                                      isDiscount: false,
-                                    })
-                                  }
-                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                />
-                                <label
-                                  htmlFor={`edit-task-is-bonus-${task.id}`}
-                                  className="text-sm font-medium"
-                                >
-                                  Bônus
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-medium">{task.title}</h3>
-                              <p className="text-sm text-muted-foreground">
-                                {task.description}
-                              </p>
-                              <p
-                                className={`text-sm font-semibold ${
-                                  task.isDiscount
-                                    ? "text-red-600 dark:text-red-400"
-                                    : "text-green-600 dark:text-green-400"
-                                }`}
-                              >
-                                R$ {task.value.toFixed(2)}
-                              </p>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => setEditingTask(task)}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                onClick={() => handleDeleteTask(task.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </Card>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={(event) => handleDragEnd(event, tasks)}
+                  modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
+                >
+                  <SortableContext
+                    items={tasks.map((task) => task.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <AnimatePresence mode="popLayout">
+                      {tasks.map((task) => (
+                        <motion.div
+                          key={task.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.2 }}
+                          layout
+                        >
+                          <SortableTaskCard
+                            task={task}
+                            onEdit={setEditingTask}
+                            onDelete={handleDeleteTask}
+                            isEditing={editingTask?.id === task.id}
+                            editingTask={editingTask}
+                            setEditingTask={setEditingTask}
+                            onUpdate={handleUpdateTask}
+                          />
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </SortableContext>
+                </DndContext>
               </div>
             )}
 
@@ -414,141 +537,40 @@ export function TaskManagementDialog({
             {tasksDiscount.length > 0 && (
               <div className="mb-4">
                 <h3 className="text-lg font-medium mb-2">Descontos</h3>
-                <AnimatePresence mode="popLayout">
-                  {tasksDiscount.map((task) => (
-                    <motion.div
-                      key={task.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.2 }}
-                      layout
-                    >
-                      <Card className="p-4">
-                        {editingTask?.id === task.id ? (
-                          <div className="space-y-2">
-                            <Input
-                              value={editingTask.title}
-                              onChange={(e) =>
-                                setEditingTask({
-                                  ...editingTask,
-                                  title: e.target.value,
-                                })
-                              }
-                              className="mb-2"
-                            />
-                            <Textarea
-                              value={editingTask.description}
-                              onChange={(e) =>
-                                setEditingTask({
-                                  ...editingTask,
-                                  description: e.target.value,
-                                })
-                              }
-                              className="mb-2"
-                            />
-                            <div className="flex gap-2">
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={Math.abs(editingTask.value)}
-                                onChange={(e) =>
-                                  setEditingTask({
-                                    ...editingTask,
-                                    value: parseFloat(e.target.value),
-                                  })
-                                }
-                              />
-                              <Button
-                                onClick={handleUpdateTask}
-                                className="bg-green-500 hover:bg-green-600"
-                              >
-                                Salvar
-                              </Button>
-                            </div>
-                            <div className="flex gap-2 mb-2 sm:gap-24">
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="radio"
-                                  id={`edit-task-is-discount-${task.id}`}
-                                  name={`edit-task-type-${task.id}`}
-                                  checked={editingTask.isDiscount}
-                                  onChange={() => {}}
-                                  onClick={() =>
-                                    setEditingTask({
-                                      ...editingTask,
-                                      isDiscount: !editingTask.isDiscount,
-                                      isBonus: false,
-                                    })
-                                  }
-                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                />
-                                <label
-                                  htmlFor={`edit-task-is-discount-${task.id}`}
-                                  className="text-sm font-medium"
-                                >
-                                  É um desconto (valor negativo)
-                                </label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="radio"
-                                  id={`edit-task-is-bonus-${task.id}`}
-                                  name={`edit-task-type-${task.id}`}
-                                  checked={editingTask.isBonus}
-                                  onChange={() => {}}
-                                  onClick={() =>
-                                    setEditingTask({
-                                      ...editingTask,
-                                      isBonus: !editingTask.isBonus,
-                                      isDiscount: false,
-                                    })
-                                  }
-                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                />
-                                <label
-                                  htmlFor={`edit-task-is-bonus-${task.id}`}
-                                  className="text-sm font-medium"
-                                >
-                                  Bônus
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-medium">{task.title}</h3>
-                              <p className="text-sm text-muted-foreground">
-                                {task.description}
-                              </p>
-                              <p className="text-sm font-semibold text-red-600 dark:text-red-400">
-                                R$ {task.value.toFixed(2)}
-                              </p>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => setEditingTask(task)}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                onClick={() => handleDeleteTask(task.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </Card>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={(event) => handleDragEnd(event, tasksDiscount)}
+                  modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
+                >
+                  <SortableContext
+                    items={tasksDiscount.map((task) => task.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <AnimatePresence mode="popLayout">
+                      {tasksDiscount.map((task) => (
+                        <motion.div
+                          key={task.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.2 }}
+                          layout
+                        >
+                          <SortableTaskCard
+                            task={task}
+                            onEdit={setEditingTask}
+                            onDelete={handleDeleteTask}
+                            isEditing={editingTask?.id === task.id}
+                            editingTask={editingTask}
+                            setEditingTask={setEditingTask}
+                            onUpdate={handleUpdateTask}
+                          />
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </SortableContext>
+                </DndContext>
               </div>
             )}
 
@@ -556,141 +578,40 @@ export function TaskManagementDialog({
             {tasksBonus.length > 0 && (
               <div>
                 <h3 className="text-lg font-medium mb-2">Bônus</h3>
-                <AnimatePresence mode="popLayout">
-                  {tasksBonus.map((task) => (
-                    <motion.div
-                      key={task.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ duration: 0.2 }}
-                      layout
-                    >
-                      <Card className="p-4">
-                        {editingTask?.id === task.id ? (
-                          <div className="space-y-2">
-                            <Input
-                              value={editingTask.title}
-                              onChange={(e) =>
-                                setEditingTask({
-                                  ...editingTask,
-                                  title: e.target.value,
-                                })
-                              }
-                              className="mb-2"
-                            />
-                            <Textarea
-                              value={editingTask.description}
-                              onChange={(e) =>
-                                setEditingTask({
-                                  ...editingTask,
-                                  description: e.target.value,
-                                })
-                              }
-                              className="mb-2"
-                            />
-                            <div className="flex gap-2">
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={Math.abs(editingTask.value)}
-                                onChange={(e) =>
-                                  setEditingTask({
-                                    ...editingTask,
-                                    value: parseFloat(e.target.value),
-                                  })
-                                }
-                              />
-                              <Button
-                                onClick={handleUpdateTask}
-                                className="bg-green-500 hover:bg-green-600"
-                              >
-                                Salvar
-                              </Button>
-                            </div>
-                            <div className="flex gap-2 mb-2 sm:gap-24">
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="radio"
-                                  id={`edit-task-is-discount-${task.id}`}
-                                  name={`edit-task-type-${task.id}`}
-                                  checked={editingTask.isDiscount}
-                                  onChange={() => {}}
-                                  onClick={() =>
-                                    setEditingTask({
-                                      ...editingTask,
-                                      isDiscount: !editingTask.isDiscount,
-                                      isBonus: false,
-                                    })
-                                  }
-                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                />
-                                <label
-                                  htmlFor={`edit-task-is-discount-${task.id}`}
-                                  className="text-sm font-medium"
-                                >
-                                  É um desconto (valor negativo)
-                                </label>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <input
-                                  type="radio"
-                                  id={`edit-task-is-bonus-${task.id}`}
-                                  name={`edit-task-type-${task.id}`}
-                                  checked={editingTask.isBonus}
-                                  onChange={() => {}}
-                                  onClick={() =>
-                                    setEditingTask({
-                                      ...editingTask,
-                                      isBonus: !editingTask.isBonus,
-                                      isDiscount: false,
-                                    })
-                                  }
-                                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                />
-                                <label
-                                  htmlFor={`edit-task-is-bonus-${task.id}`}
-                                  className="text-sm font-medium"
-                                >
-                                  Bônus
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h3 className="font-medium">{task.title}</h3>
-                              <p className="text-sm text-muted-foreground">
-                                {task.description}
-                              </p>
-                              <p className="text-sm font-semibold text-yellow-600 dark:text-yellow-400">
-                                R$ {task.value.toFixed(2)}
-                              </p>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => setEditingTask(task)}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="icon"
-                                onClick={() => handleDeleteTask(task.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </Card>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={(event) => handleDragEnd(event, tasksBonus)}
+                  modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
+                >
+                  <SortableContext
+                    items={tasksBonus.map((task) => task.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    <AnimatePresence mode="popLayout">
+                      {tasksBonus.map((task) => (
+                        <motion.div
+                          key={task.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -20 }}
+                          transition={{ duration: 0.2 }}
+                          layout
+                        >
+                          <SortableTaskCard
+                            task={task}
+                            onEdit={setEditingTask}
+                            onDelete={handleDeleteTask}
+                            isEditing={editingTask?.id === task.id}
+                            editingTask={editingTask}
+                            setEditingTask={setEditingTask}
+                            onUpdate={handleUpdateTask}
+                          />
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </SortableContext>
+                </DndContext>
               </div>
             )}
           </div>

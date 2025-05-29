@@ -40,6 +40,7 @@ export interface Database {
           isBonus: boolean;
           createdAt: string;
           updatedAt: string;
+          order: number;
         };
         Insert: {
           id?: string;
@@ -50,6 +51,7 @@ export interface Database {
           isBonus: boolean;
           createdAt?: string;
           updatedAt?: string;
+          order: number;
         };
         Update: {
           id?: string;
@@ -60,6 +62,7 @@ export interface Database {
           isBonus?: boolean;
           createdAt?: string;
           updatedAt?: string;
+          order: number;
         };
       };
       CompletedTask: {
