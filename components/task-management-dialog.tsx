@@ -69,7 +69,13 @@ function SortableTaskCard({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="touch-none"
+    >
       <Card className="p-4">
         {isEditing && editingTask ? (
           <div className="space-y-2">
