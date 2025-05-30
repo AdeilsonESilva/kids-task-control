@@ -29,9 +29,9 @@ export class DailySummaryService {
     // Conta o total de tarefas pagas disponíveis para a criança
     const { count: totalTasks, error: countError } = await this.db
       .from("Task")
-      .select("*", { count: "exact", head: true })
       .eq("isDiscount", false)
-      .eq("isBonus", false);
+      .eq("isBonus", false)
+      .select("*", { count: "exact", head: true });
 
     if (countError) throw countError;
 
@@ -54,8 +54,13 @@ export class DailySummaryService {
     // Calcula o valor total das tarefas completadas
     // Tarefas com isDiscount=true devem subtrair do valor total
     const totalValue = completedTasks.reduce((sum, ct) => {
+      if (!ct.task) return sum; // Should not happen with the select, but good practice
       const taskValue = parseFloat(ct.task.value);
-      return ct.task.isDiscount ? sum - 0 : sum + taskValue;
+      // Only add value if it's not a discount and not a bonus task
+      if (ct.task.isDiscount || ct.task.isBonus) {
+        return sum;
+      }
+      return sum + taskValue;
     }, 0);
 
     // Filtra apenas tarefas que pagam (valor positivo e não são descontos)
