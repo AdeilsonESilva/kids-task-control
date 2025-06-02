@@ -10,7 +10,7 @@ export const GET = withApiContext(async ({ db }, request) => {
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
 
-  if (!childId || !startDate || !endDate) {
+  if (!childId || !startDate) {
     return NextResponse.json(
       { error: "Child ID, start date and end date are required" },
       { status: 400 }

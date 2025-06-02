@@ -3,17 +3,21 @@ import { Database } from "@/types/supabase";
 import { startOfDay, endOfDay } from "date-fns";
 
 export class CompletedTaskService {
-  constructor(private db: SupabaseClient<Database>) {}
+  constructor(private db: SupabaseClient<Database>) { }
 
-  async getCompletedTasksByChildAndDateRange(childId: string, startDateStr: string, endDateStr: string) {
+  async getCompletedTasksByChildAndDateRange(childId: string, startDateStr: string, endDateStr: string | null) {
     const startDate = new Date(startDateStr);
-    const endDate = new Date(endDateStr);
+    const endDate = endDateStr ? new Date(endDateStr) : new Date(startDateStr);
     const dayStart = startOfDay(startDate).toISOString();
     const dayEnd = endOfDay(endDate).toISOString();
 
     const { data, error } = await this.db
       .from("CompletedTask")
-      .select("*")
+      .select(`*, 
+        task: Task (
+          value,
+          isDiscount
+        )`)
       .eq("childId", childId)
       .gte("date", dayStart)
       .lte("date", dayEnd);
