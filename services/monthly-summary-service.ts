@@ -1,6 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/types/supabase";
-import { startOfMonth, endOfMonth } from "date-fns";
+import { startOfMonth, endOfMonth, isSameMonth, isSameYear, getDate } from "date-fns";
 
 export class MonthlySummaryService {
   constructor(private db: SupabaseClient<Database>) { }
@@ -41,8 +41,16 @@ export class MonthlySummaryService {
       return ct.Task.isDiscount ? sum + taskValue : sum;
     }, 0);
 
-    const daysInMonth = monthEnd.getDate();
-    const dailyAverageValue = totalValue / daysInMonth;
+    const daysInMonth = monthEnd.getDate(); // Total days in the selected month
+    const currentDate = new Date();
+
+    let daysToUse = daysInMonth;
+    if (isSameMonth(date, currentDate) && isSameYear(date, currentDate)) {
+      daysToUse = getDate(currentDate); // Current day of the month
+    }
+
+    // Prevent division by zero if daysToUse is 0
+    const dailyAverageValue = daysToUse > 0 ? totalValue / daysToUse : 0;
 
     return {
       totalValue,
