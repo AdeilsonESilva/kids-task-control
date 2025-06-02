@@ -15,6 +15,7 @@ import {
   getCompletedTasksByDateRange,
   CompletedTaskWithValue,
 } from "@/lib/api-client";
+import { PageHeader } from "@/components/ui/page-header"; // New import
 // import { Child } from "@/lib/types"; // Placeholder for Child type
 // import { Task } from "@/types/task"; // Placeholder for Task type - path might differ
 
@@ -95,50 +96,54 @@ export default function PaymentDuePage() {
   }, [selectedChildId, dateRange]);
 
   return (
-    <div className="container mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Calcular Valor a Pagar</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-              <div className="md:col-span-1">
-                <ChildSelector 
-                  onSelectChild={handleChildSelect} 
-                  selectedChild={selectedChildId} 
-                />
+    <div className="min-h-screen bg-background">
+      <PageHeader title="Relatório de Valor a Pagar" />
+      <main className="container mx-auto p-4">
+        <Card>
+          <CardHeader>
+            {/* This CardTitle might be reviewed later if PageHeader's title is sufficient */}
+            <CardTitle>Calcular Valor a Pagar</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div className="md:col-span-1">
+                  <ChildSelector
+                    onSelectChild={handleChildSelect}
+                    selectedChild={selectedChildId}
+                  />
+                </div>
+                <div className="md:col-span-1">
+                  <DateRangePicker
+                    onChange={handleDateRangeChange}
+                    value={dateRange}
+                  />
+                </div>
+                <Button
+                  onClick={handleCalculate}
+                  disabled={isLoading || !selectedChildId || !dateRange?.from || !dateRange?.to}
+                  className="md:col-span-1"
+                >
+                  {isLoading ? "Calculando..." : "Calcular"}
+                </Button>
               </div>
-              <div className="md:col-span-1">
-                <DateRangePicker 
-                  onChange={handleDateRangeChange} 
-                  value={dateRange} 
-                />
-              </div>
-              <Button
-                onClick={handleCalculate}
-                disabled={isLoading || !selectedChildId || !dateRange?.from || !dateRange?.to}
-                className="md:col-span-1"
-              >
-                {isLoading ? "Calculando..." : "Calcular"}
-              </Button>
-            </div>
 
-            {isLoading && <p className="text-center">Calculando...</p>}
-            {error && <p className="text-center text-red-500">{error}</p>}
-            {totalAmount !== null && !isLoading && !error && (
-              <div className="mt-6 text-center p-6 bg-gray-50 rounded-lg shadow">
-                <h3 className="text-xl font-medium text-gray-700 mb-2">
-                  Valor Total a Pagar:
-                </h3>
-                <p className={`text-3xl font-bold ${totalAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  R$ {totalAmount.toFixed(2).replace(".", ",")}
-                </p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              {isLoading && <p className="text-center">Calculando...</p>}
+              {error && <p className="text-center text-red-500">{error}</p>}
+              {totalAmount !== null && !isLoading && !error && (
+                <div className="mt-6 text-center p-6 bg-gray-50 rounded-lg shadow">
+                  <h3 className="text-xl font-medium text-gray-700 mb-2">
+                    Valor Total a Pagar:
+                  </h3>
+                  <p className={`text-3xl font-bold ${totalAmount >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    R$ {totalAmount.toFixed(2).replace(".", ",")}
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </main>
     </div>
   );
 }

@@ -7,7 +7,8 @@ import { ChildSelector } from "@/components/child-selector";
 import { DailyProgress } from "@/components/daily-progress";
 import { CalendarView } from "@/components/calendar-view";
 import { MonthlySummary } from "@/components/monthly-summary";
-import { MainNav } from "@/components/main-nav";
+// MainNav import removed as it's handled by PageHeader
+import { PageHeader } from "@/components/ui/page-header"; // New import
 import { motion } from "framer-motion";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useRouter } from "next/navigation";
@@ -39,14 +40,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary">
-            Tarefas das Crianças
-          </h1>
-          <MainNav />
-        </div>
-      </header>
+      <PageHeader title="Tarefas das Crianças" />
 
       <main className="container mx-auto p-4">
         <motion.div
