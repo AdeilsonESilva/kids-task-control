@@ -5,10 +5,11 @@ import { startOfDay, endOfDay } from "date-fns";
 export class CompletedTaskService {
   constructor(private db: SupabaseClient<Database>) {}
 
-  async getCompletedTasksByChildAndDate(childId: string, dateStr: string) {
-    const date = new Date(dateStr);
-    const dayStart = startOfDay(date).toISOString();
-    const dayEnd = endOfDay(date).toISOString();
+  async getCompletedTasksByChildAndDateRange(childId: string, startDateStr: string, endDateStr: string) {
+    const startDate = new Date(startDateStr);
+    const endDate = new Date(endDateStr);
+    const dayStart = startOfDay(startDate).toISOString();
+    const dayEnd = endOfDay(endDate).toISOString();
 
     const { data, error } = await this.db
       .from("CompletedTask")

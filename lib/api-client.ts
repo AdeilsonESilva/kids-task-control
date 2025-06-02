@@ -31,3 +31,33 @@ export async function apiClient<T>(
 
   return response.json();
 }
+
+// Define a type for the completed tasks that includes value and isDiscount
+// This might need to be adjusted based on the actual structure of your Task and CompletedTask types
+export interface CompletedTaskWithValue {
+  id: string;
+  taskId: string;
+  childId: string;
+  date: string;
+  value: number; // Assuming 'value' comes from the joined Task table
+  isDiscount: boolean; // Assuming 'isDiscount' comes from the joined Task table
+  task?: { // Optional: if the API nests task details
+    id: string;
+    name: string;
+    value: number;
+    isDiscount: boolean;
+  };
+}
+
+
+export async function getCompletedTasksByDateRange(
+  childId: string,
+  startDate: Date,
+  endDate: Date
+): Promise<CompletedTaskWithValue[]> {
+  const startDateString = startDate.toISOString().split("T")[0];
+  const endDateString = endDate.toISOString().split("T")[0];
+
+  const endpoint = `/api/completed-tasks?childId=${childId}&startDate=${startDateString}&endDate=${endDateString}`;
+  return apiClient<CompletedTaskWithValue[]>(endpoint, { method: "GET" });
+}

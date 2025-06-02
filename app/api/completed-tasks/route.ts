@@ -7,17 +7,18 @@ export const GET = withApiContext(async ({ db }, request) => {
 
   const { searchParams } = new URL(request.url);
   const childId = searchParams.get("childId");
-  const dateStr = searchParams.get("date");
+  const startDate = searchParams.get("startDate");
+  const endDate = searchParams.get("endDate");
 
-  if (!childId || !dateStr) {
+  if (!childId || !startDate || !endDate) {
     return NextResponse.json(
-      { error: "Child ID and date are required" },
+      { error: "Child ID, start date and end date are required" },
       { status: 400 }
     );
   }
 
   const completedTaskService = new CompletedTaskService(db);
-  return await completedTaskService.getCompletedTasksByChildAndDate(childId, dateStr);
+  return await completedTaskService.getCompletedTasksByChildAndDateRange(childId, startDate, endDate);
 });
 
 export const POST = withApiContext(async ({ db }, request) => {
