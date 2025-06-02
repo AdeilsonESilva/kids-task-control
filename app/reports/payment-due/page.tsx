@@ -104,10 +104,16 @@ export default function PaymentDuePage() {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
               <div className="md:col-span-1">
-                <ChildSelector onChildSelect={handleChildSelect} />
+                <ChildSelector 
+                  onSelectChild={handleChildSelect} 
+                  selectedChild={selectedChildId} 
+                />
               </div>
               <div className="md:col-span-1">
-                <DateRangePicker onDateChange={handleDateRangeChange} />
+                <DateRangePicker 
+                  onChange={handleDateRangeChange} 
+                  value={dateRange} 
+                />
               </div>
               <Button
                 onClick={handleCalculate}
