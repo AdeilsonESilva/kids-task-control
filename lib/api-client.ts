@@ -53,8 +53,8 @@ export async function getCompletedTasksByDateRange(
   startDate: Date,
   endDate: Date
 ): Promise<CompletedTaskWithValue[]> {
-  const startDateString = startDate.toISOString().split("T")[0];
-  const endDateString = endDate.toISOString().split("T")[0];
+  const startDateString = startDate.toISOString();
+  const endDateString = endDate.toISOString();
 
   const endpoint = `/api/completed-tasks?childId=${childId}&startDate=${startDateString}&endDate=${endDateString}`;
   return apiClient<CompletedTaskWithValue[]>(endpoint, { method: "GET" });
