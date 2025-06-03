@@ -62,7 +62,7 @@ export function TaskList({
 
     try {
       const data = await apiClient<{ taskId: string }[]>(
-        `/api/completed-tasks?childId=${selectedChild}&date=${selectedDate.toISOString()}`
+        `/api/completed-tasks?childId=${selectedChild}&startDate=${selectedDate.toISOString()}`
       );
       setCompletedTasks(data.map((ct) => ct.taskId));
     } catch (error) {
