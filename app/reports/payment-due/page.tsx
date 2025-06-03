@@ -132,13 +132,15 @@ export default function PaymentDuePage() {
               {isLoading && <p className="text-center">Calculando...</p>}
               {error && <p className="text-center text-red-500">{error}</p>}
               {totalAmount !== null && !isLoading && !error && (
-                <div className="mt-6 text-center p-6 bg-gray-50 rounded-lg shadow">
-                  <h3 className="text-xl font-medium text-gray-700 mb-2">
+                <div className="mt-6 text-center p-6 bg-card rounded-lg shadow">
+                  <h3 className="text-xl font-medium mb-2">
                     Valor Total a Pagar:
                   </h3>
                   <p
                     className={`text-3xl font-bold ${
-                      totalAmount >= 0 ? "text-green-600" : "text-red-600"
+                      totalAmount >= 0
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
                     }`}
                   >
                     R$ {totalAmount.toFixed(2).replace(".", ",")}
