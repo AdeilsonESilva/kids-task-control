@@ -21,8 +21,3 @@ export const EXPENSE_CATEGORIES = [
   'Education',
   'Other'
 ] as const
-
-export type DateRange = {
-  from: Date | undefined
-  to: Date | undefined
-}

@@ -27,7 +27,6 @@ export function CalendarView({
           selected={selectedDate}
           onSelect={onDateSelect}
           locale={ptBR}
-          className="rounded-md border"
         />
       </Card>
     </motion.div>

@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, GripVertical } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
@@ -69,148 +69,156 @@ function SortableTaskCard({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="touch-none"
-    >
+    <div ref={setNodeRef} style={style} className="touch-none">
       <Card className="p-4">
-        {isEditing && editingTask ? (
-          <div className="space-y-2">
-            <Input
-              value={editingTask.title}
-              onPointerDown={(e) => e.stopPropagation()}
-              onChange={(e) =>
-                setEditingTask({
-                  ...editingTask,
-                  title: e.target.value,
-                })
-              }
-              className="mb-2"
-            />
-            <Textarea
-              value={editingTask.description}
-              onPointerDown={(e) => e.stopPropagation()}
-              onChange={(e) =>
-                setEditingTask({
-                  ...editingTask,
-                  description: e.target.value,
-                })
-              }
-              className="mb-2"
-            />
-            <div className="flex gap-2">
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                value={Math.abs(editingTask.value)}
-                onPointerDown={(e) => e.stopPropagation()}
-                onChange={(e) =>
-                  setEditingTask({
-                    ...editingTask,
-                    value: parseFloat(e.target.value),
-                  })
-                }
-              />
-              <Button
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={onUpdate}
-                className="bg-green-500 hover:bg-green-600"
-              >
-                Salvar
-              </Button>
-            </div>
-            <div className="flex gap-2 mb-2 sm:gap-24">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id={`edit-task-is-discount-${task.id}`}
-                  name={`edit-task-type-${task.id}`}
-                  checked={editingTask.isDiscount}
-                  onChange={() => {}}
-                  onClick={() =>
+        <div className="flex items-start gap-3">
+          {/* Drag handle */}
+          <div
+            {...attributes}
+            {...listeners}
+            className="mt-1 cursor-grab active:cursor-grabbing"
+          >
+            <GripVertical className="h-5 w-5 text-muted-foreground" />
+          </div>
+
+          {/* Card content */}
+          <div className="flex-1">
+            {isEditing && editingTask ? (
+              <div className="space-y-2">
+                <Input
+                  value={editingTask.title}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onChange={(e) =>
                     setEditingTask({
                       ...editingTask,
-                      isDiscount: !editingTask.isDiscount,
-                      isBonus: false,
+                      title: e.target.value,
                     })
                   }
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  className="mb-2"
                 />
-                <label
-                  htmlFor={`edit-task-is-discount-${task.id}`}
-                  className="text-sm font-medium"
-                >
-                  É um desconto (valor negativo)
-                </label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="radio"
-                  id={`edit-task-is-bonus-${task.id}`}
-                  name={`edit-task-type-${task.id}`}
-                  checked={editingTask.isBonus}
-                  onChange={() => {}}
-                  onClick={() =>
+                <Textarea
+                  value={editingTask.description}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onChange={(e) =>
                     setEditingTask({
                       ...editingTask,
-                      isBonus: !editingTask.isBonus,
-                      isDiscount: false,
+                      description: e.target.value,
                     })
                   }
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  className="mb-2"
                 />
-                <label
-                  htmlFor={`edit-task-is-bonus-${task.id}`}
-                  className="text-sm font-medium"
-                >
-                  Bônus
-                </label>
+                <div className="flex gap-2">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={Math.abs(editingTask.value)}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onChange={(e) =>
+                      setEditingTask({
+                        ...editingTask,
+                        value: parseFloat(e.target.value),
+                      })
+                    }
+                  />
+                  <Button
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={onUpdate}
+                    className="bg-green-500 hover:bg-green-600"
+                  >
+                    Salvar
+                  </Button>
+                </div>
+                <div className="flex gap-2 mb-2 sm:gap-24">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id={`edit-task-is-discount-${task.id}`}
+                      name={`edit-task-type-${task.id}`}
+                      checked={editingTask.isDiscount}
+                      onChange={() => {}}
+                      onClick={() =>
+                        setEditingTask({
+                          ...editingTask,
+                          isDiscount: !editingTask.isDiscount,
+                          isBonus: false,
+                        })
+                      }
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <label
+                      htmlFor={`edit-task-is-discount-${task.id}`}
+                      className="text-sm font-medium"
+                    >
+                      É um desconto (valor negativo)
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      id={`edit-task-is-bonus-${task.id}`}
+                      name={`edit-task-type-${task.id}`}
+                      checked={editingTask.isBonus}
+                      onChange={() => {}}
+                      onClick={() =>
+                        setEditingTask({
+                          ...editingTask,
+                          isBonus: !editingTask.isBonus,
+                          isDiscount: false,
+                        })
+                      }
+                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                    />
+                    <label
+                      htmlFor={`edit-task-is-bonus-${task.id}`}
+                      className="text-sm font-medium"
+                    >
+                      Bônus
+                    </label>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="flex justify-between items-start w-full">
+                <div>
+                  <h3 className="font-medium">{task.title}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {task.description}
+                  </p>
+                  <p
+                    className={`text-sm font-semibold ${
+                      task.isDiscount
+                        ? "text-red-600 dark:text-red-400"
+                        : task.isBonus
+                        ? "text-yellow-600 dark:text-yellow-400"
+                        : "text-green-600 dark:text-green-400"
+                    }`}
+                  >
+                    R$ {task.value.toFixed(2)}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={() => onEdit(task)}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={() => onDelete(task.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="font-medium">{task.title}</h3>
-              <p className="text-sm text-muted-foreground">
-                {task.description}
-              </p>
-              <p
-                className={`text-sm font-semibold ${
-                  task.isDiscount
-                    ? "text-red-600 dark:text-red-400"
-                    : task.isBonus
-                    ? "text-yellow-600 dark:text-yellow-400"
-                    : "text-green-600 dark:text-green-400"
-                }`}
-              >
-                R$ {task.value.toFixed(2)}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={() => onEdit(task)}
-              >
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="destructive"
-                size="icon"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={() => onDelete(task.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
+        </div>
       </Card>
     </div>
   );
