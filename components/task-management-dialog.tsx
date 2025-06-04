@@ -69,14 +69,14 @@ function SortableTaskCard({
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="touch-none">
+    <div ref={setNodeRef} style={style}>
       <Card className="p-4">
         <div className="flex items-start gap-3">
           {/* Drag handle */}
           <div
             {...attributes}
             {...listeners}
-            className="mt-1 cursor-grab active:cursor-grabbing"
+            className="touch-none mt-1 cursor-grab active:cursor-grabbing"
           >
             <GripVertical className="h-5 w-5 text-muted-foreground" />
           </div>
