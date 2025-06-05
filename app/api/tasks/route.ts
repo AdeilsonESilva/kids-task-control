@@ -19,5 +19,6 @@ export const POST = withApiContext(async ({ db }, request: Request) => {
     isDiscount: body.isDiscount,
     isBonus: body.isBonus,
     order: 9999,
+    enable: true,
   });
 });

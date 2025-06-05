@@ -5,14 +5,12 @@ import { Card } from "./ui/card";
 import { Checkbox } from "./ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
-import { TaskDialog } from "./task-dialog";
 import { Task } from "@/types/task";
 import { apiClient } from "@/lib/api-client";
 
 interface TaskListProps {
   selectedChild: string | null;
   selectedDate: Date | undefined;
-  updateTrigger?: number;
   onUpdateTrigger?: () => void;
 }
 
@@ -25,8 +23,6 @@ export function TaskList({
   const [tasks, setTasks] = useState<Task[]>([]);
   const [tasksDiscount, setTasksDiscount] = useState<Task[]>([]);
   const [tasksBonus, setTasksBonus] = useState<Task[]>([]);
-  const [editingTask, setEditingTask] = useState<Task>();
-  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [completedTasks, setCompletedTasks] = useState<string[]>([]);
 
   // Reiniciar as tarefas completadas quando trocar de criança ou data
@@ -280,16 +276,6 @@ export function TaskList({
           </AnimatePresence>
         </div>
       )}
-
-      <TaskDialog
-        open={isTaskDialogOpen}
-        onOpenChange={setIsTaskDialogOpen}
-        task={editingTask}
-        onSuccess={() => {
-          setEditingTask(undefined);
-          fetchTasks();
-        }}
-      />
     </div>
   );
 }

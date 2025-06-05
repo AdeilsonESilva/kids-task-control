@@ -6,6 +6,7 @@ export interface Task {
   isDiscount: boolean;
   isBonus: boolean;
   order: number;
+  enable: boolean;
 }
 
 export type TaskInput = Omit<Task, "id">;

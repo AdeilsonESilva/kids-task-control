@@ -3,12 +3,13 @@ import { Database } from "@/types/supabase";
 import { Task, TaskInput } from "@/types/task";
 
 export class TaskService {
-  constructor(private db: SupabaseClient<Database>) {}
+  constructor(private db: SupabaseClient<Database>) { }
 
   async getAllTasks() {
     const { data, error } = await this.db
       .from("Task")
       .select("*")
+      .eq("enable", true)
       .order("order", { ascending: true });
 
     if (error) throw error;
@@ -63,7 +64,7 @@ export class TaskService {
   }
 
   async deleteTask(id: string) {
-    const { error } = await this.db.from("Task").delete().eq("id", id);
+    const { error } = await this.db.from("Task").update({ enable: false }).eq("id", id);
 
     if (error) throw error;
   }

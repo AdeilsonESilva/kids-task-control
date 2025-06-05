@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, MouseEventHandler } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -332,6 +332,8 @@ export function TaskManagementDialog({
           value: Math.abs(editingTask.value),
           isDiscount: editingTask.isDiscount,
           isBonus: editingTask.isBonus,
+          order: editingTask.order,
+          enable: editingTask.enable,
         }),
       });
 
