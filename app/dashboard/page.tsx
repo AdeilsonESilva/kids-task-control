@@ -80,7 +80,6 @@ export default function Dashboard() {
                 <TaskList
                   selectedChild={selectedChild}
                   selectedDate={selectedDate}
-                  updateTrigger={updateTrigger}
                   onUpdateTrigger={() => setUpdateTrigger((prev) => prev + 1)}
                 />
               </Card>

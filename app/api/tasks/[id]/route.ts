@@ -15,6 +15,8 @@ export const PUT = withApiContext(async ({ db }, request, { params }) => {
     value: body.value,
     isBonus: body.isBonus,
     isDiscount: body.isDiscount,
+    order: body.order,
+    enable: body.enable,
   });
 });
 

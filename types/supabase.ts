@@ -41,6 +41,7 @@ export interface Database {
           createdAt: string;
           updatedAt: string;
           order: number;
+          enable: boolean;
         };
         Insert: {
           id?: string;
@@ -52,6 +53,7 @@ export interface Database {
           createdAt?: string;
           updatedAt?: string;
           order: number;
+          enable: boolean;
         };
         Update: {
           id?: string;
@@ -63,6 +65,7 @@ export interface Database {
           createdAt?: string;
           updatedAt?: string;
           order: number;
+          enable: boolean;
         };
       };
       CompletedTask: {
