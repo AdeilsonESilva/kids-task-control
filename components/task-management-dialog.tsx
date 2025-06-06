@@ -37,6 +37,9 @@ import {
   restrictToVerticalAxis,
   restrictToWindowEdges,
 } from "@dnd-kit/modifiers";
+import { useTasks } from "@/hooks/use-tasks";
+import { LoadingSpinner } from "./ui/loading-spinner";
+import { CardError } from "./ui/card-error";
 
 interface TaskManagementDialogProps {
   open: boolean;
@@ -97,7 +100,7 @@ function SortableTaskCard({
                   className="mb-2"
                 />
                 <Textarea
-                  value={editingTask.description}
+                  value={editingTask.description || ''}
                   onPointerDown={(e) => e.stopPropagation()}
                   onChange={(e) =>
                     setEditingTask({
@@ -229,9 +232,6 @@ export function TaskManagementDialog({
   onOpenChange,
 }: TaskManagementDialogProps) {
   const { toast } = useToast();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [tasksDiscount, setTasksDiscount] = useState<Task[]>([]);
-  const [tasksBonus, setTasksBonus] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -241,6 +241,9 @@ export function TaskManagementDialog({
   });
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
+  const { tasks, tasksDiscount, tasksBonus, isLoading, error, refetch } =
+    useTasks();
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -249,11 +252,9 @@ export function TaskManagementDialog({
   );
 
   useEffect(() => {
-    if (open) {
-      fetchTasks();
-    } else {
-      resetForm();
-    }
+    if (open) return;
+
+    resetForm();
   }, [open]);
 
   const resetForm = () => {
@@ -265,22 +266,6 @@ export function TaskManagementDialog({
       isBonus: false,
     });
     setEditingTask(null);
-  };
-
-  const fetchTasks = async () => {
-    try {
-      const data = await apiClient<Task[]>("/api/tasks");
-      setTasks(data.filter((task) => !task.isDiscount && !task.isBonus));
-      setTasksDiscount(data.filter((task) => task.isDiscount));
-      setTasksBonus(data.filter((task) => task.isBonus));
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar a lista de tarefas.",
-        variant: "destructive",
-      });
-    }
   };
 
   const handleAddTask = async () => {
@@ -302,7 +287,7 @@ export function TaskManagementDialog({
       });
 
       resetForm();
-      await fetchTasks();
+      await refetch();
       toast({
         title: "Sucesso",
         description: "Tarefa adicionada com sucesso!",
@@ -338,7 +323,7 @@ export function TaskManagementDialog({
       });
 
       setEditingTask(null);
-      await fetchTasks();
+      await refetch();
       toast({
         title: "Sucesso",
         description: "Tarefa atualizada com sucesso!",
@@ -359,7 +344,7 @@ export function TaskManagementDialog({
         method: "DELETE",
       });
 
-      await fetchTasks();
+      await refetch();
       toast({
         title: "Sucesso",
         description: "Tarefa removida com sucesso!",
@@ -385,9 +370,7 @@ export function TaskManagementDialog({
     if (over && active.id !== over.id) {
       const oldIndex = tasksToOrder.findIndex((task) => task.id === active.id);
       const newIndex = tasksToOrder.findIndex((task) => task.id === over.id);
-
       const newTasks = arrayMove(tasksToOrder, oldIndex, newIndex);
-      setTasks(newTasks);
 
       // Atualizar a ordem no backend
       try {
@@ -409,7 +392,7 @@ export function TaskManagementDialog({
         });
       } finally {
         // Recarregar as tarefas em caso de erro
-        await fetchTasks();
+        await refetch();
       }
     }
   };
@@ -507,130 +490,140 @@ export function TaskManagementDialog({
             </div>
           </div>
 
-          <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
-            {/* Tarefas */}
-            {tasks.length > 0 && (
-              <div className="mb-4">
-                <h3 className="text-lg font-medium mb-2">Tarefas</h3>
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={(event) => handleDragEnd(event, tasks)}
-                  modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
-                >
-                  <SortableContext
-                    items={tasks.map((task) => task.id)}
-                    strategy={verticalListSortingStrategy}
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : error ? (
+            <CardError
+              title="Erro ao carregar tarefas"
+              tryText="Tentar novamente"
+              refetch={refetch}
+            />
+          ) : (
+            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
+              {/* Tarefas */}
+              {tasks.length > 0 && (
+                <div className="mb-4">
+                  <h3 className="text-lg font-medium mb-2">Tarefas</h3>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={(event) => handleDragEnd(event, tasks)}
+                    modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
                   >
-                    <AnimatePresence mode="popLayout">
-                      {tasks.map((task) => (
-                        <motion.div
-                          key={task.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -20 }}
-                          transition={{ duration: 0.2 }}
-                          layout
-                        >
-                          <SortableTaskCard
-                            task={task}
-                            onEdit={setEditingTask}
-                            onDelete={handleDeleteTask}
-                            isEditing={editingTask?.id === task.id}
-                            editingTask={editingTask}
-                            setEditingTask={setEditingTask}
-                            onUpdate={handleUpdateTask}
-                          />
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </SortableContext>
-                </DndContext>
-              </div>
-            )}
+                    <SortableContext
+                      items={tasks.map((task) => task.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <AnimatePresence mode="popLayout">
+                        {tasks.map((task) => (
+                          <motion.div
+                            key={task.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.2 }}
+                            layout
+                          >
+                            <SortableTaskCard
+                              task={task}
+                              onEdit={setEditingTask}
+                              onDelete={handleDeleteTask}
+                              isEditing={editingTask?.id === task.id}
+                              editingTask={editingTask}
+                              setEditingTask={setEditingTask}
+                              onUpdate={handleUpdateTask}
+                            />
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </SortableContext>
+                  </DndContext>
+                </div>
+              )}
 
-            {/* Descontos */}
-            {tasksDiscount.length > 0 && (
-              <div className="mb-4">
-                <h3 className="text-lg font-medium mb-2">Descontos</h3>
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={(event) => handleDragEnd(event, tasksDiscount)}
-                  modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
-                >
-                  <SortableContext
-                    items={tasksDiscount.map((task) => task.id)}
-                    strategy={verticalListSortingStrategy}
+              {/* Descontos */}
+              {tasksDiscount.length > 0 && (
+                <div className="mb-4">
+                  <h3 className="text-lg font-medium mb-2">Descontos</h3>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={(event) => handleDragEnd(event, tasksDiscount)}
+                    modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
                   >
-                    <AnimatePresence mode="popLayout">
-                      {tasksDiscount.map((task) => (
-                        <motion.div
-                          key={task.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -20 }}
-                          transition={{ duration: 0.2 }}
-                          layout
-                        >
-                          <SortableTaskCard
-                            task={task}
-                            onEdit={setEditingTask}
-                            onDelete={handleDeleteTask}
-                            isEditing={editingTask?.id === task.id}
-                            editingTask={editingTask}
-                            setEditingTask={setEditingTask}
-                            onUpdate={handleUpdateTask}
-                          />
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </SortableContext>
-                </DndContext>
-              </div>
-            )}
+                    <SortableContext
+                      items={tasksDiscount.map((task) => task.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <AnimatePresence mode="popLayout">
+                        {tasksDiscount.map((task) => (
+                          <motion.div
+                            key={task.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.2 }}
+                            layout
+                          >
+                            <SortableTaskCard
+                              task={task}
+                              onEdit={setEditingTask}
+                              onDelete={handleDeleteTask}
+                              isEditing={editingTask?.id === task.id}
+                              editingTask={editingTask}
+                              setEditingTask={setEditingTask}
+                              onUpdate={handleUpdateTask}
+                            />
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </SortableContext>
+                  </DndContext>
+                </div>
+              )}
 
-            {/* Bônus */}
-            {tasksBonus.length > 0 && (
-              <div>
-                <h3 className="text-lg font-medium mb-2">Bônus</h3>
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={(event) => handleDragEnd(event, tasksBonus)}
-                  modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
-                >
-                  <SortableContext
-                    items={tasksBonus.map((task) => task.id)}
-                    strategy={verticalListSortingStrategy}
+              {/* Bônus */}
+              {tasksBonus.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Bônus</h3>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={(event) => handleDragEnd(event, tasksBonus)}
+                    modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
                   >
-                    <AnimatePresence mode="popLayout">
-                      {tasksBonus.map((task) => (
-                        <motion.div
-                          key={task.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -20 }}
-                          transition={{ duration: 0.2 }}
-                          layout
-                        >
-                          <SortableTaskCard
-                            task={task}
-                            onEdit={setEditingTask}
-                            onDelete={handleDeleteTask}
-                            isEditing={editingTask?.id === task.id}
-                            editingTask={editingTask}
-                            setEditingTask={setEditingTask}
-                            onUpdate={handleUpdateTask}
-                          />
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </SortableContext>
-                </DndContext>
-              </div>
-            )}
-          </div>
+                    <SortableContext
+                      items={tasksBonus.map((task) => task.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <AnimatePresence mode="popLayout">
+                        {tasksBonus.map((task) => (
+                          <motion.div
+                            key={task.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.2 }}
+                            layout
+                          >
+                            <SortableTaskCard
+                              task={task}
+                              onEdit={setEditingTask}
+                              onDelete={handleDeleteTask}
+                              isEditing={editingTask?.id === task.id}
+                              editingTask={editingTask}
+                              setEditingTask={setEditingTask}
+                              onUpdate={handleUpdateTask}
+                            />
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    </SortableContext>
+                  </DndContext>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
