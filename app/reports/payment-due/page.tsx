@@ -8,17 +8,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCompletedTasksByDateRange } from "@/lib/api-client";
 import { PageHeader } from "@/components/ui/page-header"; // New import
 import { DateRange } from "react-day-picker";
-// import { Child } from "@/lib/types"; // Placeholder for Child type
-// import { Task } from "@/types/task"; // Placeholder for Task type - path might differ
 
 export default function PaymentDuePage() {
-  const [selectedChildId, setSelectedChildId] = useState<string | null>(null);
+  const [selectedChildId, setSelectedChildId] = useState<string>();
   const [dateRange, setDateRange] = useState<DateRange>();
   const [totalAmount, setTotalAmount] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleChildSelect = useCallback((childId: string | null) => {
+  const handleChildSelect = useCallback((childId?: string) => {
     setSelectedChildId(childId);
     setTotalAmount(null); // Reset amount when child changes
     setError(null);
@@ -41,22 +39,11 @@ export default function PaymentDuePage() {
     setTotalAmount(null);
 
     try {
-      console.log(
-        "Fetching completed tasks for child:",
-        selectedChildId,
-        "from:",
-        dateRange.from,
-        "to:",
-        dateRange.to
-      );
-
       const completedTasks = await getCompletedTasksByDateRange(
         selectedChildId,
         dateRange.from,
         dateRange.to
       );
-
-      console.log("Fetched completed tasks:", completedTasks);
 
       let calculatedAmount = 0;
       for (const task of completedTasks) {

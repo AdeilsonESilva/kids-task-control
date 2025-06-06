@@ -1,12 +1,5 @@
-export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  value: number;
-  isDiscount: boolean;
-  isBonus: boolean;
-  order: number;
-  enable: boolean;
-}
+import { Database } from "./supabase";
 
-export type TaskInput = Omit<Task, "id">;
+export type Task = Database["public"]["Tables"]["Task"]["Row"];
+
+export type CreateTask = Omit<Task, "id" | "createdAt" | "updatedAt">;

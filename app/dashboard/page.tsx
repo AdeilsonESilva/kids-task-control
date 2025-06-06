@@ -17,9 +17,8 @@ export default function Dashboard() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const [selectedChild, setSelectedChild] = useState<string | null>(null);
+  const [selectedChild, setSelectedChild] = useState<string>();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
-  const [updateTrigger, setUpdateTrigger] = useState(0);
 
   const { user, loading } = useAuth();
 
@@ -67,20 +66,17 @@ export default function Dashboard() {
               <MonthlySummary
                 selectedChild={selectedChild}
                 selectedDate={selectedDate}
-                updateTrigger={updateTrigger}
               />
 
               <DailyProgress
                 selectedChild={selectedChild}
                 selectedDate={selectedDate}
-                updateTrigger={updateTrigger}
               />
 
               <Card className="p-4 shadow-lg hover:shadow-xl transition-shadow">
                 <TaskList
                   selectedChild={selectedChild}
                   selectedDate={selectedDate}
-                  onUpdateTrigger={() => setUpdateTrigger((prev) => prev + 1)}
                 />
               </Card>
             </div>
