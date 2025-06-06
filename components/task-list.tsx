@@ -32,7 +32,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
     isLoading: isLoadingCompletedTasks,
     error: errorCompletedTasks,
     refetch: refetchCompletedTasks,
-  } = useCompletedTasks({ selectedChild, selectedDate });
+  } = useCompletedTasks({ childId: selectedChild, startDate: selectedDate });
   const { refetch: refetchDailySummary } = useDailySummary({
     selectedChild,
     selectedDate,
@@ -153,13 +153,21 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                     >
                       <div className="flex items-center gap-4">
                         <Checkbox
-                          checked={completedTasks?.includes(task.id)}
+                          checked={
+                            !!completedTasks?.find(
+                              (completedTask) =>
+                                completedTask.taskId === task.id
+                            )
+                          }
                           onCheckedChange={() => {}}
                           className="transition-all duration-200"
                         />
                         <div
                           className={`transition-all duration-200 ${
-                            completedTasks?.includes(task.id)
+                            completedTasks?.find(
+                              (completedTask) =>
+                                completedTask.taskId === task.id
+                            )
                               ? "opacity-50"
                               : ""
                           }`}
@@ -200,13 +208,21 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                     >
                       <div className="flex items-center gap-4">
                         <Checkbox
-                          checked={completedTasks?.includes(task.id)}
+                          checked={
+                            !!completedTasks?.find(
+                              (completedTask) =>
+                                completedTask.taskId === task.id
+                            )
+                          }
                           onCheckedChange={() => {}}
                           className="transition-all duration-200"
                         />
                         <div
                           className={`transition-all duration-200 ${
-                            completedTasks?.includes(task.id)
+                            completedTasks?.find(
+                              (completedTask) =>
+                                completedTask.taskId === task.id
+                            )
                               ? "opacity-50"
                               : ""
                           }`}
@@ -247,13 +263,21 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                     >
                       <div className="flex items-center gap-4">
                         <Checkbox
-                          checked={completedTasks?.includes(task.id)}
+                          checked={
+                            !!completedTasks?.find(
+                              (completedTask) =>
+                                completedTask.taskId === task.id
+                            )
+                          }
                           onCheckedChange={() => {}}
                           className="transition-all duration-200"
                         />
                         <div
                           className={`transition-all duration-200 ${
-                            completedTasks?.includes(task.id)
+                            completedTasks?.find(
+                              (completedTask) =>
+                                completedTask.taskId === task.id
+                            )
                               ? "opacity-50"
                               : ""
                           }`}
