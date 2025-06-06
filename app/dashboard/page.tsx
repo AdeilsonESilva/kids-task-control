@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/ui/page-header"; // New import
 import { motion } from "framer-motion";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useRouter } from "next/navigation";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export default function Dashboard() {
   const today = new Date();
@@ -25,16 +26,29 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user)
-      router.push("/login");
-  }, [loading, user, router])
+    if (!loading && !user) router.push("/login");
+  }, [loading, user, router]);
 
   if (loading) {
-    return <div>Loading...</div>; 
+    return (
+      <div className="min-h-screen bg-background flex justify-center">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   if (!user) {
-    return <div>Acesso negado...</div>;
+    return (
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center">
+        <div>Acesso negado!</div>
+        <button
+          onClick={() => router.push("/login")}
+          className="text-blue-500 hover:underline mt-4"
+        >
+          Efetuar novo Login
+        </button>
+      </div>
+    );
   }
 
   return (
