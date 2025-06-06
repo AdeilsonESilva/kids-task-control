@@ -13,14 +13,20 @@ export class CompletedTaskService {
 
     const { data, error } = await this.db
       .from("CompletedTask")
-      .select('taskId')
+      .select(`
+        taskId,
+        task:Task(
+          value,
+          isDiscount
+        )
+      `)
       .eq("childId", childId)
       .gte("date", dayStart)
       .lte("date", dayEnd);
 
     if (error) throw error;
 
-    return data.map(item => String(item.taskId));
+    return data;
   }
 
   async toggleTaskCompletion(taskId: string, childId: string, date: string) {
