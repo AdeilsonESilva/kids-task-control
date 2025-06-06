@@ -1,6 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/types/supabase";
-import { Task, TaskInput } from "@/types/task";
+import { Task, CreateTask } from "@/types/task";
 
 export class TaskService {
   constructor(private db: SupabaseClient<Database>) { }
@@ -17,10 +17,10 @@ export class TaskService {
     return data;
   }
 
-  async createTask(taskInput: TaskInput) {
+  async createTask(createTask: CreateTask) {
     const { data, error } = await this.db
       .from("Task")
-      .insert([taskInput])
+      .insert([createTask])
       .select()
       .single();
 
@@ -29,7 +29,7 @@ export class TaskService {
     return data;
   }
 
-  async updateTask(id: string, taskInput: Partial<TaskInput>) {
+  async updateTask(id: string, taskInput: Partial<Task>) {
     const { data, error } = await this.db
       .from("Task")
       .update(taskInput)

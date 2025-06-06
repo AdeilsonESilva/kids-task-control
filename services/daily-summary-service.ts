@@ -1,11 +1,12 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/types/supabase";
 import { startOfDay, endOfDay, startOfWeek, endOfWeek } from "date-fns";
+import { DailySummaryType } from "@/types/daily-summary";
 
 export class DailySummaryService {
   constructor(private db: SupabaseClient<Database>) { }
 
-  async getDailySummary(childId: string, dateStr: string) {
+  async getDailySummary(childId: string, dateStr: string): Promise<DailySummaryType> {
     const date = new Date(dateStr);
     const dayStart = startOfDay(date).toISOString();
     const dayEnd = endOfDay(date).toISOString();

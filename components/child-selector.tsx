@@ -1,62 +1,55 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { motion } from "framer-motion";
-import { apiClient } from "@/lib/api-client";
-
-interface Child {
-  id: string;
-  name: string;
-}
+import { LoadingSpinner } from "./ui/loading-spinner";
+import { CardError } from "./ui/card-error";
+import { useChildren } from "@/hooks/use-children";
 
 interface ChildSelectorProps {
-  selectedChild: string | null;
-  onSelectChild: (childId: string | null) => void;
+  selectedChild?: string;
+  onSelectChild: (childId?: string) => void;
 }
 
 export function ChildSelector({
   selectedChild,
   onSelectChild,
 }: ChildSelectorProps) {
-  const [children, setChildren] = useState<Child[]>([]);
-
-  useEffect(() => {
-    fetchChildren();
-  }, []);
-
-  const fetchChildren = async () => {
-    try {
-      const data = await apiClient<Child[]>("/api/children");
-      setChildren(data);
-    } catch (error) {
-      console.error("Error fetching children:", error);
-    }
-  };
+  const { data: children, isLoading, error, refetch } = useChildren();
 
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold mb-4">Crianças</h2>
 
       <div className="space-y-2">
-        {children.map((child) => (
-          <motion.div
-            key={child.id}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Button
-              variant={selectedChild === child.id ? "default" : "outline"}
-              className="w-full justify-start"
-              onClick={() =>
-                onSelectChild(child.id === selectedChild ? null : child.id)
-              }
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : error ? (
+          <CardError
+            title="Erro ao carregar crianças"
+            tryText="Tentar novamente"
+            refetch={refetch}
+          />
+        ) : (
+          children?.map((child) => (
+            <motion.div
+              key={child.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
             >
-              {child.name}
-            </Button>
-          </motion.div>
-        ))}
+              <Button
+                variant={selectedChild === child.id ? "default" : "outline"}
+                className="w-full justify-start"
+                onClick={() =>
+                  onSelectChild(child.id === selectedChild ? undefined : child.id)
+                }
+              >
+                {child.name}
+              </Button>
+            </motion.div>
+          ))
+        )}
       </div>
     </div>
   );
