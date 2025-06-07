@@ -147,10 +147,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                     transition={{ duration: 0.3 }}
                     layout
                   >
-                    <Card
-                      className="p-4 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
-                      onClick={() => handleTaskCompletion(task.id)}
-                    >
+                    <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
                       <div className="flex items-center gap-4">
                         <Checkbox
                           checked={
@@ -159,7 +156,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                                 completedTask.taskId === task.id
                             )
                           }
-                          onCheckedChange={() => {}}
+                          onCheckedChange={() => handleTaskCompletion(task.id)}
                           className="transition-all duration-200"
                         />
                         <div
@@ -202,10 +199,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                     transition={{ duration: 0.3 }}
                     layout
                   >
-                    <Card
-                      className="p-4 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
-                      onClick={() => handleTaskCompletion(task.id)}
-                    >
+                    <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
                       <div className="flex items-center gap-4">
                         <Checkbox
                           checked={
@@ -214,7 +208,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                                 completedTask.taskId === task.id
                             )
                           }
-                          onCheckedChange={() => {}}
+                          onCheckedChange={() => handleTaskCompletion(task.id)}
                           className="transition-all duration-200"
                         />
                         <div
@@ -257,10 +251,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                     transition={{ duration: 0.3 }}
                     layout
                   >
-                    <Card
-                      className="p-4 flex items-center justify-between cursor-pointer hover:shadow-lg transition-shadow"
-                      onClick={() => handleTaskCompletion(task.id)}
-                    >
+                    <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
                       <div className="flex items-center gap-4">
                         <Checkbox
                           checked={
@@ -269,7 +260,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                                 completedTask.taskId === task.id
                             )
                           }
-                          onCheckedChange={() => {}}
+                          onCheckedChange={() => handleTaskCompletion(task.id)}
                           className="transition-all duration-200"
                         />
                         <div
