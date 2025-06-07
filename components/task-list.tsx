@@ -149,16 +149,24 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                   >
                     <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
                       <div className="flex items-center gap-4">
-                        <Checkbox
-                          checked={
-                            !!completedTasks?.find(
-                              (completedTask) =>
-                                completedTask.taskId === task.id
-                            )
-                          }
-                          onCheckedChange={() => handleTaskCompletion(task.id)}
-                          className="transition-all duration-200"
-                        />
+                        <label
+                          htmlFor={`task-${task.id}`}
+                          className="flex cursor-pointer hover:bg-accent p-4 rounded-lg transition-colors"
+                        >
+                          <Checkbox
+                            id={`task-${task.id}`}
+                            checked={
+                              !!completedTasks?.find(
+                                (completedTask) =>
+                                  completedTask.taskId === task.id
+                              )
+                            }
+                            onCheckedChange={() =>
+                              handleTaskCompletion(task.id)
+                            }
+                            className="transition-all duration-200"
+                          />
+                        </label>
                         <div
                           className={`transition-all duration-200 ${
                             completedTasks?.find(
@@ -201,16 +209,24 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                   >
                     <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
                       <div className="flex items-center gap-4">
-                        <Checkbox
-                          checked={
-                            !!completedTasks?.find(
-                              (completedTask) =>
-                                completedTask.taskId === task.id
-                            )
-                          }
-                          onCheckedChange={() => handleTaskCompletion(task.id)}
-                          className="transition-all duration-200"
-                        />
+                        <label
+                          htmlFor={`task-discount-${task.id}`}
+                          className="flex cursor-pointer hover:bg-accent p-4 rounded-lg transition-colors"
+                        >
+                          <Checkbox
+                            id={`task-discount-${task.id}`}
+                            checked={
+                              !!completedTasks?.find(
+                                (completedTask) =>
+                                  completedTask.taskId === task.id
+                              )
+                            }
+                            onCheckedChange={() =>
+                              handleTaskCompletion(task.id)
+                            }
+                            className="transition-all duration-200"
+                          />
+                        </label>
                         <div
                           className={`transition-all duration-200 ${
                             completedTasks?.find(
@@ -253,16 +269,24 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                   >
                     <Card className="p-4 flex items-center justify-between hover:shadow-lg transition-shadow">
                       <div className="flex items-center gap-4">
-                        <Checkbox
-                          checked={
-                            !!completedTasks?.find(
-                              (completedTask) =>
-                                completedTask.taskId === task.id
-                            )
-                          }
-                          onCheckedChange={() => handleTaskCompletion(task.id)}
-                          className="transition-all duration-200"
-                        />
+                        <label
+                          htmlFor={`task-bonus-${task.id}`}
+                          className="flex cursor-pointer hover:bg-accent p-4 rounded-lg transition-colors"
+                        >
+                          <Checkbox
+                            id={`task-bonus-${task.id}`}
+                            checked={
+                              !!completedTasks?.find(
+                                (completedTask) =>
+                                  completedTask.taskId === task.id
+                              )
+                            }
+                            onCheckedChange={() =>
+                              handleTaskCompletion(task.id)
+                            }
+                            className="transition-all duration-200"
+                          />
+                        </label>
                         <div
                           className={`transition-all duration-200 ${
                             completedTasks?.find(
