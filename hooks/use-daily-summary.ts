@@ -1,7 +1,5 @@
 import { useToast } from "@/components/ui/use-toast";
-import { apiClient } from "@/lib/api-client";
-import { DailySummaryType } from "@/types/daily-summary";
-import { useQuery } from "@tanstack/react-query";
+import { useDailySummaryStore } from "@/lib/stores/daily-summary-store";
 import { useEffect } from "react";
 
 interface DailySummaryParam {
@@ -9,32 +7,54 @@ interface DailySummaryParam {
   selectedDate?: Date;
 }
 
-const fetchDailySummary = async ({ selectedChild, selectedDate }: DailySummaryParam) => {
-  return await apiClient<DailySummaryType>(
-    `/api/daily-summary?childId=${selectedChild}&date=${selectedDate?.toISOString()}`
-  );
-};
-
-export const useDailySummary = (dailySummary: DailySummaryParam) => {
+export const useDailySummary = ({
+  selectedChild,
+  selectedDate,
+}: DailySummaryParam) => {
   const { toast } = useToast();
+  const {
+    isLoading,
+    error,
+    fetchDailySummary,
+    refetchDailySummary,
+    getDailySummary,
+    clearError,
+  } = useDailySummaryStore();
 
-  const query =  useQuery({
-    queryKey: ["dailySummary", dailySummary.selectedChild, dailySummary.selectedDate?.toISOString()],
-    queryFn: () => fetchDailySummary(dailySummary),
-    enabled: !!dailySummary.selectedChild && !!dailySummary.selectedDate,
-  });
-
-  const error = query.error;
-
+  // Busca os dados se necessário
   useEffect(() => {
-      if (!error) return;
-  
+    if (selectedChild && selectedDate) {
+      fetchDailySummary(selectedChild, selectedDate);
+    }
+  }, [selectedChild, selectedDate, fetchDailySummary]);
+
+  // Exibe toast de erro se houver
+  useEffect(() => {
+    if (error) {
       toast({
         title: "Erro",
-        description: "Não foi possível carregar o resumo diário.",
+        description: error,
         variant: "destructive",
       });
-    }, [error, toast]);
+      clearError();
+    }
+  }, [error, toast, clearError]);
 
-  return query;
+  // Retorna os dados no mesmo formato que o React Query
+  const data =
+    selectedChild && selectedDate
+      ? getDailySummary(selectedChild, selectedDate)
+      : null;
+
+  return {
+    data,
+    isLoading,
+    error,
+    isError: !!error,
+    isSuccess: !isLoading && !error && !!data,
+    refetch:
+      selectedChild && selectedDate
+        ? () => refetchDailySummary(selectedChild, selectedDate)
+        : () => Promise.resolve(),
+  };
 };

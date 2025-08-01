@@ -7,6 +7,7 @@ import { ptBR } from "date-fns/locale";
 import { useDailySummary } from "@/hooks/use-daily-summary";
 import { LoadingSpinner } from "./ui/loading-spinner";
 import { CardError } from "./ui/card-error";
+import { useCompletedTasksStoreHook } from "@/hooks/use-completed-tasks-store";
 
 interface DailyProgressProps {
   selectedChild?: string;
@@ -23,6 +24,14 @@ export function DailyProgress({
     error,
     refetch,
   } = useDailySummary({ selectedChild, selectedDate });
+
+  const { data: completedTasks } = useCompletedTasksStoreHook({
+    childId: selectedChild,
+    selectedDate,
+  });
+
+  console.log("completedTasks", completedTasks);
+  console.log("summary", summary);
 
   const formattedDate = selectedDate
     ? format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })

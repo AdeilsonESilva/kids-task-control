@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { QueryProvider } from "@/components/query-provider";
+import { SummaryProvider } from "@/components/summary-provider";
 import { Toaster } from "@/components/ui/toaster";
 
 export const RootProvider = ({ children }: { children: React.ReactNode }) => {
@@ -13,7 +14,7 @@ export const RootProvider = ({ children }: { children: React.ReactNode }) => {
     >
       <AuthProvider>
         <QueryProvider>
-          {children}
+          <SummaryProvider>{children}</SummaryProvider>
           <Toaster />
         </QueryProvider>
       </AuthProvider>

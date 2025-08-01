@@ -1,7 +1,5 @@
 import { useToast } from "@/components/ui/use-toast";
-import { apiClient } from "@/lib/api-client";
-import { MonthlySummaryType } from "@/types/monthly-summary";
-import { useQuery } from "@tanstack/react-query";
+import { useMonthlySummaryStore } from "@/lib/stores/monthly-summary-store";
 import { useEffect } from "react";
 
 interface MonthlySummaryParam {
@@ -9,32 +7,54 @@ interface MonthlySummaryParam {
   selectedDate?: Date;
 }
 
-const fetchMonthlySummary = async ({ selectedChild, selectedDate }: MonthlySummaryParam) => {
-  return await apiClient<MonthlySummaryType>(
-    `/api/monthly-summary?childId=${selectedChild}&date=${selectedDate?.toISOString()}`
-  );
-};
-
-export const useMonthlySummary = (monthlySummary: MonthlySummaryParam) => {
+export const useMonthlySummary = ({
+  selectedChild,
+  selectedDate,
+}: MonthlySummaryParam) => {
   const { toast } = useToast();
+  const {
+    isLoading,
+    error,
+    fetchMonthlySummary,
+    refetchMonthlySummary,
+    getMonthlySummary,
+    clearError,
+  } = useMonthlySummaryStore();
 
-  const query = useQuery({
-    queryKey: ["monthlySummary", monthlySummary.selectedChild, monthlySummary.selectedDate?.toISOString()],
-    queryFn: () => fetchMonthlySummary(monthlySummary),
-    enabled: !!monthlySummary.selectedChild && !!monthlySummary.selectedDate,
-  });
-
-  const error = query.error;
-
+  // Busca os dados se necessário
   useEffect(() => {
-    if (!error) return;
+    if (selectedChild && selectedDate) {
+      fetchMonthlySummary(selectedChild, selectedDate);
+    }
+  }, [selectedChild, selectedDate, fetchMonthlySummary]);
 
-    toast({
-      title: "Erro",
-      description: "Não foi possível carregar o resumo mensal.",
-      variant: "destructive",
-    });
-  }, [error, toast]);
+  // Exibe toast de erro se houver
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Erro",
+        description: error,
+        variant: "destructive",
+      });
+      clearError();
+    }
+  }, [error, toast, clearError]);
 
-  return query;
+  // Retorna os dados no mesmo formato que o React Query
+  const data =
+    selectedChild && selectedDate
+      ? getMonthlySummary(selectedChild, selectedDate)
+      : null;
+
+  return {
+    data,
+    isLoading,
+    error,
+    isError: !!error,
+    isSuccess: !isLoading && !error && !!data,
+    refetch:
+      selectedChild && selectedDate
+        ? () => refetchMonthlySummary(selectedChild, selectedDate)
+        : () => Promise.resolve(),
+  };
 };

@@ -4,13 +4,11 @@ import { Card } from "./ui/card";
 import { Checkbox } from "./ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/components/ui/use-toast";
-import { apiClient } from "@/lib/api-client";
 import { LoadingSpinner } from "./ui/loading-spinner";
 import { CardError } from "./ui/card-error";
 import { useTasks } from "@/hooks/use-tasks";
-import { useCompletedTasks } from "@/hooks/use-completed-tasks";
-import { useDailySummary } from "@/hooks/use-daily-summary";
-import { useMonthlySummary } from "@/hooks/use-monthly-summary";
+import { useCompletedTasksStoreHook } from "@/hooks/use-completed-tasks-store";
+import { Task } from "@/types/task";
 
 interface TaskListProps {
   selectedChild?: string;
@@ -32,13 +30,9 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
     isLoading: isLoadingCompletedTasks,
     error: errorCompletedTasks,
     refetch: refetchCompletedTasks,
-  } = useCompletedTasks({ childId: selectedChild, startDate: selectedDate });
-  const { refetch: refetchDailySummary } = useDailySummary({
-    selectedChild,
-    selectedDate,
-  });
-  const { refetch: refetchMonthlySummary } = useMonthlySummary({
-    selectedChild,
+    toggleTask,
+  } = useCompletedTasksStoreHook({
+    childId: selectedChild,
     selectedDate,
   });
 
@@ -50,7 +44,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
     refetchCompletedTasks();
   };
 
-  const handleTaskCompletion = async (taskId: string) => {
+  const handleTaskCompletion = async (task: Task) => {
     if (!selectedChild || !selectedDate) {
       toast({
         title: "Atenção",
@@ -61,24 +55,9 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
     }
 
     try {
-      const data = await apiClient<{ message?: string }>(
-        "/api/completed-tasks",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            taskId,
-            childId: selectedChild,
-            date: selectedDate.toISOString(),
-          }),
-        }
-      );
+      const response = await toggleTask(task);
 
-      Promise.all([
-        refetchCompletedTasks(),
-        refetchDailySummary(),
-        refetchMonthlySummary(),
-      ]);
-      if (data.message === "Task uncompleted") {
+      if (response?.message === "Task uncompleted") {
         toast({
           title: "Tarefa desmarcada",
           description: "A tarefa foi desmarcada com sucesso.",
@@ -161,9 +140,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                                   completedTask.taskId === task.id
                               )
                             }
-                            onCheckedChange={() =>
-                              handleTaskCompletion(task.id)
-                            }
+                            onCheckedChange={() => handleTaskCompletion(task)}
                             className="transition-all duration-200"
                           />
                         </label>
@@ -221,9 +198,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                                   completedTask.taskId === task.id
                               )
                             }
-                            onCheckedChange={() =>
-                              handleTaskCompletion(task.id)
-                            }
+                            onCheckedChange={() => handleTaskCompletion(task)}
                             className="transition-all duration-200"
                           />
                         </label>
@@ -281,9 +256,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                                   completedTask.taskId === task.id
                               )
                             }
-                            onCheckedChange={() =>
-                              handleTaskCompletion(task.id)
-                            }
+                            onCheckedChange={() => handleTaskCompletion(task)}
                             className="transition-all duration-200"
                           />
                         </label>
