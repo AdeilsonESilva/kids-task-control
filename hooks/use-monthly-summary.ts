@@ -15,13 +15,13 @@ const fetchMonthlySummary = async ({ selectedChild, selectedDate }: MonthlySumma
   );
 };
 
-export const useMonthlySummary = (monthlySummary: MonthlySummaryParam) => {
+export const useMonthlySummary = (monthlySummary: MonthlySummaryParam, enabled?: boolean) => {
   const { toast } = useToast();
 
   const query = useQuery({
     queryKey: ["monthlySummary", monthlySummary.selectedChild, monthlySummary.selectedDate?.toISOString()],
     queryFn: () => fetchMonthlySummary(monthlySummary),
-    enabled: !!monthlySummary.selectedChild && !!monthlySummary.selectedDate,
+    enabled: !!monthlySummary.selectedChild && !!monthlySummary.selectedDate && enabled,
   });
 
   const error = query.error;

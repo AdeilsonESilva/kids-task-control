@@ -8,7 +8,7 @@ const fetchTasks = async () => {
   return await apiClient<Task[]>("/api/tasks");
 };
 
-export const useTasks = () => {
+export const useTasks = (enabled?: boolean) => {
   const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [tasksDiscount, setTasksDiscount] = useState<Task[]>([]);
@@ -17,6 +17,7 @@ export const useTasks = () => {
   const {data: allTasks, isLoading, error, refetch, ...rest} = useQuery({
     queryKey: ["tasks"],
     queryFn: fetchTasks,
+    enabled
   });
 
   useEffect(() => {

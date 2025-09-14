@@ -15,13 +15,13 @@ const fetchDailySummary = async ({ selectedChild, selectedDate }: DailySummaryPa
   );
 };
 
-export const useDailySummary = (dailySummary: DailySummaryParam) => {
+export const useDailySummary = (dailySummary: DailySummaryParam, enabled?: boolean) => {
   const { toast } = useToast();
 
   const query =  useQuery({
     queryKey: ["dailySummary", dailySummary.selectedChild, dailySummary.selectedDate?.toISOString()],
     queryFn: () => fetchDailySummary(dailySummary),
-    enabled: !!dailySummary.selectedChild && !!dailySummary.selectedDate,
+    enabled: !!dailySummary.selectedChild && !!dailySummary.selectedDate && enabled,
   });
 
   const error = query.error;
