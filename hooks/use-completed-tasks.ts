@@ -17,13 +17,13 @@ const fetchCompletedTasks = async ({ childId, startDate, endDate }: CompletedTas
   );
 };
 
-export const useCompletedTasks = (completedTask: CompletedTaskParam) => {
+export const useCompletedTasks = (completedTask: CompletedTaskParam, enabled?: boolean) => {
   const { toast } = useToast();
 
   const query = useQuery({
     queryKey: ["completedTasks", completedTask.childId, completedTask.startDate?.toISOString(), completedTask.endDate?.toISOString()],
     queryFn: () => fetchCompletedTasks(completedTask),
-    enabled: !!completedTask.childId && !!completedTask.startDate,
+    enabled: !!completedTask.childId && !!completedTask.startDate && enabled,
   });
 
   const error = query.error;

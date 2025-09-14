@@ -5,6 +5,8 @@ import { motion } from "framer-motion";
 import { LoadingSpinner } from "./ui/loading-spinner";
 import { CardError } from "./ui/card-error";
 import { useChildren } from "@/hooks/use-children";
+import { useStoreChildren } from "@/app/stores/useStoreChildren";
+import { useEffect } from "react";
 
 interface ChildSelectorProps {
   selectedChild?: string;
@@ -15,7 +17,15 @@ export function ChildSelector({
   selectedChild,
   onSelectChild,
 }: ChildSelectorProps) {
-  const { data: children, isLoading, error, refetch } = useChildren();
+  const { children, update } = useStoreChildren();
+  const { data: childrenData, isLoading, error, refetch } = useChildren(!children);
+
+  useEffect(() => {
+    if(childrenData !== undefined) {
+      update(childrenData);
+    }
+  }, [childrenData, update]);
+
 
   return (
     <div className="space-y-4">
