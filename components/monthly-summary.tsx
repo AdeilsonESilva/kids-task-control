@@ -19,11 +19,11 @@ export function MonthlySummary({
   selectedChild,
   selectedDate,
 }: MonthlySummaryProps) {
-  const { monthlySummary, update, updateDate } = useStoreMonthlySummary();
+  const { monthlySummary, update, isNeedUpdate } = useStoreMonthlySummary();
 
   useEffect(() => {
-      updateDate(selectedDate);
-  }, [selectedDate, updateDate]);
+    isNeedUpdate(selectedDate, selectedChild);
+  }, [selectedDate, isNeedUpdate, selectedChild]);
 
   const {
     data: summaryData,

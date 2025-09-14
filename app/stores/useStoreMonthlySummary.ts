@@ -4,20 +4,21 @@ import { StateCreator, create } from 'zustand'
 
 type MonthlySummaryState = {
   currentDate?: Date
+  currentChild?: string
   monthlySummary?: MonthlySummaryType
   update: (by: MonthlySummaryType) => void
   sumMonthlySummary: (task: Task, isCompleted: boolean) => void
   reset: () => void
-  updateDate: (date?: Date) => void
+  isNeedUpdate: (date?: Date, child?: string) => void
 }
 
 export const createStoreMonthlySummary: StateCreator<MonthlySummaryState> = (set, get) => ({
-  updateDate: (date) => {
-    if(date && get().currentDate && (date.getMonth() !== get().currentDate!.getMonth() || date.getFullYear() !== get().currentDate!.getFullYear())) {
+  isNeedUpdate: (date, child) => {
+    if(date && get().currentDate && child && get().currentChild && (date.getMonth() !== get().currentDate!.getMonth() || date.getFullYear() !== get().currentDate!.getFullYear() || child !== get().currentChild)) {
       get().reset()
     }
 
-    return set(() => ({ currentDate: date }))
+    return set(() => ({ currentDate: date, currentChild: child }))
   },
   update: (monthlySummary) => set(() => ({ monthlySummary })),
   sumMonthlySummary: (task, isCompleted) => set((state) => {
