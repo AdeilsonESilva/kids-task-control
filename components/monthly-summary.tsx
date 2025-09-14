@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { useMonthlySummary } from "@/hooks/use-monthly-summary";
 import { LoadingSpinner } from "./ui/loading-spinner";
 import { CardError } from "./ui/card-error";
+import { useStoreMonthlySummary } from "@/app/stores/useStoreMonthlySummary";
+import { useEffect } from "react";
 
 interface MonthlySummaryProps {
   selectedChild?: string;
@@ -17,12 +19,24 @@ export function MonthlySummary({
   selectedChild,
   selectedDate,
 }: MonthlySummaryProps) {
+  const { monthlySummary, update, updateDate } = useStoreMonthlySummary();
+
+  useEffect(() => {
+      updateDate(selectedDate);
+  }, [selectedDate, updateDate]);
+
   const {
-    data: summary,
+    data: summaryData,
     isLoading,
     error,
     refetch,
-  } = useMonthlySummary({ selectedChild, selectedDate });
+  } = useMonthlySummary({ selectedChild, selectedDate }, !monthlySummary);
+
+  useEffect(() => {
+    if(summaryData !== undefined) {
+      update(summaryData);
+    }
+  }, [summaryData, update]);
 
   if (!selectedChild || !selectedDate) {
     return null;
@@ -55,7 +69,7 @@ export function MonthlySummary({
                 Total do mês
               </h3>
               <p className="text-2xl font-bold text-purple-600 dark:text-purple-300">
-                R$ {summary?.totalValue.toFixed(2)}
+                R$ {monthlySummary?.totalValue.toFixed(2)}
               </p>
             </Card>
 
@@ -64,7 +78,7 @@ export function MonthlySummary({
                 Total descontos
               </h3>
               <p className="text-2xl font-bold text-red-600 dark:text-red-300">
-                R$ {summary?.totalDiscounts.toFixed(2)}
+                R$ {monthlySummary?.totalDiscounts.toFixed(2)}
               </p>
             </Card>
 
@@ -73,7 +87,7 @@ export function MonthlySummary({
                 Tarefas completadas
               </h3>
               <p className="text-2xl font-bold text-blue-600 dark:text-blue-300">
-                {summary?.completedTasks}
+                {monthlySummary?.completedTasks}
               </p>
             </Card>
 
@@ -82,7 +96,7 @@ export function MonthlySummary({
                 Média diária
               </h3>
               <p className="text-2xl font-bold text-green-600 dark:text-green-300">
-                R$ {summary?.dailyAverageValue.toFixed(2)}
+                R$ {monthlySummary?.dailyAverageValue.toFixed(2)}
               </p>
             </Card>
           </div>

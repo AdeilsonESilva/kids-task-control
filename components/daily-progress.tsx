@@ -7,6 +7,8 @@ import { ptBR } from "date-fns/locale";
 import { useDailySummary } from "@/hooks/use-daily-summary";
 import { LoadingSpinner } from "./ui/loading-spinner";
 import { CardError } from "./ui/card-error";
+import { useStoreDailySummary } from "@/app/stores/useStoreDailySummary";
+import { useEffect } from "react";
 
 interface DailyProgressProps {
   selectedChild?: string;
@@ -17,12 +19,24 @@ export function DailyProgress({
   selectedChild,
   selectedDate,
 }: DailyProgressProps) {
+  const { dailySummary, update, reset } = useStoreDailySummary();
+
+  useEffect(() => {
+    reset();
+  }, [selectedChild, selectedDate, reset]);
+
   const {
-    data: summary,
+    data: summaryData,
     isLoading,
     error,
     refetch,
-  } = useDailySummary({ selectedChild, selectedDate });
+  } = useDailySummary({ selectedChild, selectedDate }, !dailySummary);
+
+  useEffect(() => {
+    if(summaryData !== undefined) {
+      update(summaryData);
+    }
+  }, [summaryData, update]);
 
   const formattedDate = selectedDate
     ? format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
@@ -59,7 +73,7 @@ export function DailyProgress({
                   Total do dia
                 </h3>
                 <p className="text-2xl font-bold text-green-600 dark:text-green-300">
-                  R$ {summary?.totalValue.toFixed(2)}
+                  R$ {dailySummary?.totalValue.toFixed(2)}
                 </p>
               </Card>
             </motion.div>
@@ -74,7 +88,7 @@ export function DailyProgress({
                   Tarefas pagas
                 </h3>
                 <p className="text-2xl font-bold text-blue-600 dark:text-blue-300">
-                  {summary?.completedTasks} / {summary?.totalTasks}
+                  {dailySummary?.completedTasks} / {dailySummary?.totalTasks}
                 </p>
               </Card>
             </motion.div>
@@ -89,7 +103,7 @@ export function DailyProgress({
                   Total descontos da semana
                 </h3>
                 <p className="text-2xl font-bold text-red-600 dark:text-red-300">
-                  R$ {summary?.totalDiscountWeek.toFixed(2)}
+                  R$ {dailySummary?.totalDiscountWeek.toFixed(2)}
                 </p>
               </Card>
             </motion.div>

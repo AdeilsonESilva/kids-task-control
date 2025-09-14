@@ -9,8 +9,12 @@ import { LoadingSpinner } from "./ui/loading-spinner";
 import { CardError } from "./ui/card-error";
 import { useTasks } from "@/hooks/use-tasks";
 import { useCompletedTasks } from "@/hooks/use-completed-tasks";
-import { useDailySummary } from "@/hooks/use-daily-summary";
-import { useMonthlySummary } from "@/hooks/use-monthly-summary";
+import { useEffect } from "react";
+import { useStoreTasks } from "@/app/stores/useStoreTaks";
+import { useStoreTasksCompleted } from "@/app/stores/useStoreTasksCompleted";
+import { Task } from "@/types/task";
+import { useStoreDailySummary } from "@/app/stores/useStoreDailySummary";
+import { useStoreMonthlySummary } from "@/app/stores/useStoreMonthlySummary";
 
 interface TaskListProps {
   selectedChild?: string;
@@ -18,30 +22,43 @@ interface TaskListProps {
 }
 
 export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
+  const { tasks, update } = useStoreTasks();
+  const { tasksCompleted, update: updateCompleted, updateTaskCompleted, reset } = useStoreTasksCompleted();
+  const { sumDailySummary } = useStoreDailySummary();
+  const { sumMonthlySummary } = useStoreMonthlySummary();
   const { toast } = useToast();
   const {
-    tasks,
+    tasks: tasksData,
     tasksBonus,
     tasksDiscount,
     isLoading: isLoadingTasks,
     error: errorTasks,
     refetch: refetchTasks,
-  } = useTasks();
+  } = useTasks(!tasks);
   const {
-    data: completedTasks,
+    data: completedTasksData,
     isLoading: isLoadingCompletedTasks,
     error: errorCompletedTasks,
     refetch: refetchCompletedTasks,
-  } = useCompletedTasks({ childId: selectedChild, startDate: selectedDate });
-  const { refetch: refetchDailySummary } = useDailySummary({
-    selectedChild,
-    selectedDate,
-  });
-  const { refetch: refetchMonthlySummary } = useMonthlySummary({
-    selectedChild,
-    selectedDate,
-  });
+  } = useCompletedTasks({ childId: selectedChild, startDate: selectedDate }, !tasksCompleted);
 
+  useEffect(() => {
+    reset();
+  }, [selectedChild, selectedDate, reset]);
+
+  useEffect(() => {
+    if(tasksData !== undefined) {
+      update(tasksData);
+    }
+  }, [tasksData, update]);
+
+  useEffect(() => {
+    if(completedTasksData !== undefined) {
+      updateCompleted(completedTasksData);
+    }
+  }, [completedTasksData, updateCompleted]);
+
+  
   const isLoading = isLoadingCompletedTasks || isLoadingTasks;
   const error = errorCompletedTasks || errorTasks;
 
@@ -50,7 +67,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
     refetchCompletedTasks();
   };
 
-  const handleTaskCompletion = async (taskId: string) => {
+  const handleTaskCompletion = async (task: Task) => {
     if (!selectedChild || !selectedDate) {
       toast({
         title: "Atenção",
@@ -66,18 +83,17 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
         {
           method: "POST",
           body: JSON.stringify({
-            taskId,
+            taskId: task.id,
             childId: selectedChild,
             date: selectedDate.toISOString(),
           }),
         }
       );
 
-      Promise.all([
-        refetchCompletedTasks(),
-        refetchDailySummary(),
-        refetchMonthlySummary(),
-      ]);
+      updateTaskCompleted(task);
+      sumDailySummary(task, data.message !== "Task uncompleted");
+      sumMonthlySummary(task, data.message !== "Task uncompleted");
+
       if (data.message === "Task uncompleted") {
         toast({
           title: "Tarefa desmarcada",
@@ -134,7 +150,7 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
           )}
 
           {/* Tarefas */}
-          {tasks.length > 0 && (
+          {tasks?.length && (
             <div>
               <h3 className="text-lg font-medium mb-2">Tarefas</h3>
               <AnimatePresence mode="popLayout">
@@ -156,20 +172,20 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                           <Checkbox
                             id={`task-${task.id}`}
                             checked={
-                              !!completedTasks?.find(
+                              !!tasksCompleted?.find(
                                 (completedTask) =>
                                   completedTask.taskId === task.id
                               )
                             }
                             onCheckedChange={() =>
-                              handleTaskCompletion(task.id)
+                              handleTaskCompletion(task)
                             }
                             className="transition-all duration-200"
                           />
                         </label>
                         <div
                           className={`transition-all duration-200 ${
-                            completedTasks?.find(
+                            tasksCompleted?.find(
                               (completedTask) =>
                                 completedTask.taskId === task.id
                             )
@@ -216,20 +232,20 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                           <Checkbox
                             id={`task-discount-${task.id}`}
                             checked={
-                              !!completedTasks?.find(
+                              !!tasksCompleted?.find(
                                 (completedTask) =>
                                   completedTask.taskId === task.id
                               )
                             }
                             onCheckedChange={() =>
-                              handleTaskCompletion(task.id)
+                              handleTaskCompletion(task)
                             }
                             className="transition-all duration-200"
                           />
                         </label>
                         <div
                           className={`transition-all duration-200 ${
-                            completedTasks?.find(
+                            tasksCompleted?.find(
                               (completedTask) =>
                                 completedTask.taskId === task.id
                             )
@@ -276,20 +292,20 @@ export function TaskList({ selectedChild, selectedDate }: TaskListProps) {
                           <Checkbox
                             id={`task-bonus-${task.id}`}
                             checked={
-                              !!completedTasks?.find(
+                              !!tasksCompleted?.find(
                                 (completedTask) =>
                                   completedTask.taskId === task.id
                               )
                             }
                             onCheckedChange={() =>
-                              handleTaskCompletion(task.id)
+                              handleTaskCompletion(task)
                             }
                             className="transition-all duration-200"
                           />
                         </label>
                         <div
                           className={`transition-all duration-200 ${
-                            completedTasks?.find(
+                            tasksCompleted?.find(
                               (completedTask) =>
                                 completedTask.taskId === task.id
                             )
